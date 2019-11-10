@@ -32,6 +32,8 @@
 import io.Lesson;
 import io.Importer;
 import io.Teacher;
+import search.Chromosome;
+import search.Genetic;
 import java.util.LinkedList;
 
 public class Main {
@@ -61,5 +63,10 @@ public class Main {
             for (Teacher teacher: teachers)
                 System.out.println(teacher);
         }
+
+        Genetic genetic = new Genetic();
+
+        //random values for testing
+        Chromosome solution = genetic.start(100, 0.1, 1, 1000);
     }
 }
