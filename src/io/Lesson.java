@@ -1,12 +1,15 @@
-public class Course {
+package io;
+
+public class Lesson {
+
     private int id;
     private String title;
     private String classGrade;
     private int weekHours;
 
-    public Course() {    }
+    public Lesson() {    }
 
-    public Course(int id, String title, String classGrade, int weekHours) {
+    public Lesson(int id, String title, String classGrade, int weekHours) {
         this.id = id;
         this.title = title;
         this.classGrade = classGrade;
@@ -43,5 +46,10 @@ public class Course {
 
     public void setWeekHours(int weekHours) {
         this.weekHours = weekHours;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + " Title: " + title + " Class: " + classGrade + " Hours per Week: " + weekHours;
     }
 }

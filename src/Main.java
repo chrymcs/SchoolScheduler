@@ -29,39 +29,37 @@
  *
 */
 
-
-import java.util.HashMap;
+import io.Lesson;
+import io.Importer;
+import io.Teacher;
 import java.util.LinkedList;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+
         Importer importer = new Importer();
-        LinkedList<String[]> lessons = null;
-        LinkedList<String[]> teachers = null;
-        int numOfClassA, numOfClassB, numOfClassC;
+        LinkedList<Lesson> lessons = null;
+        LinkedList<Teacher> teachers = null;
 
         try {
-            lessons = importer.read(args[0]);
-            teachers = importer.read(args[1]);
-            numOfClassA = Integer.parseInt(args[2]);
-            numOfClassB = Integer.parseInt(args[3]);
-            numOfClassC = Integer.parseInt(args[4]);
+            lessons = importer.createLessonsList(args[0]);
+            teachers = importer.createTeachersList(args[1]);
         } catch (Exception e) {
             System.err.println("No proper arguments given.");
-            System.err.println("The format should be lessons.txt teachers.txt 'number of classes in A' '..B' ..C");
-            System.err.println("---");
-            System.err.println("Program initiated with 3 classes in each year!");
-        } finally {
-            numOfClassA = 3;
-            numOfClassB = 3;
-            numOfClassC = 3;
+            System.err.println("The arguments should be lessons.txt teachers.txt");
         }
 
-        Scheduler scheduler = new Scheduler();
-        HashMap <String, Integer> courseTable =
-                scheduler.createAllSubClasses(lessons, numOfClassA, numOfClassB, numOfClassC);
-        System.out.println(courseTable.toString());
-        //System.out.println(teachers.toString());
+        if (lessons != null) {
+            System.out.println("Lessons:");
+            for (Lesson lesson: lessons)
+                System.out.println(lesson);
+        }
+
+        if (teachers != null) {
+            System.out.println("Teachers:");
+            for (Teacher teacher: teachers)
+                System.out.println(teacher);
+        }
     }
 }
