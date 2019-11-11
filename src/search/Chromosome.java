@@ -2,6 +2,8 @@ package search;
 
 public class Chromosome {
 
+    private String [][][] genes;
+
     public Chromosome() { }
 
     public double fitness() { return 0.0; }
