@@ -39,35 +39,60 @@ public class Chromosome {
     }
 
     private void calculateFitness() {
-        int gapScore = calculateSubClassesGaps();
+        int gapScore = calculateSubClassesScore();
 
     }
 
     /**
-     * Calculates the score for each Chromosome, regarding the gaps between lessons.
-     * As a 'gap' we define every null 'empty' hour between teaching hours.
+     * Calculates the score for each Chromosome, regarding the constrains bound to
+     * subClasses.
+     * <b>gapScore</b> keeps the negative value for every null 'empty' hour between teaching hours.
      * When an empty hour is present at the beginning of a day (for each subClass)
      * we also consider it to be a gap.
      * For every subclass, every day, the method searches for the last teaching hour.
      * Moving back towards the first hour it detects the occuring gaps.
-     * @return gapScore represents the negative score for each gap that occurs (counter).
+     * <b>evenHoursScore</b> keeps the negative value for every day that has different
+     * number of teaching hours from the others
+     * (example for Monday to Friday hours: "5 - 5 - 5 - 4 - 4" will result in minus 6)
+     * @return represents the negative score for gapScore and evenHoursScore.
      */
-    private int calculateSubClassesGaps() {
+    private int calculateSubClassesScore() {
         int gapScore = 0; //changes only towards negative values
+        int evenHoursScore = 0;
+        int [] subClassesHours = null;
         for (int subClass = 0; subClass < maxSubClass; subClass++) {
+            subClassesHours = new int [maxDay];
             for (int day = 0; day < maxDay; day++) {
-                //int lastTeachingHour;
+                int hoursCounter = 0;
                 boolean endOfDayFound = false;
                 for (int hour = maxHour-1; hour > 0; hour--) {
-                    if (genes[subClass][day][hour] != null && !endOfDayFound) {
-                        //lastTeachingHour = hour;
-                        endOfDayFound = true;
+                    if (genes[subClass][day][hour] != null) {
+                        hoursCounter++;
+                        if (!endOfDayFound) endOfDayFound = true;
                     } else if (genes[subClass][day][hour] == null && endOfDayFound)
                         gapScore--;
-                    }
                 }
+                subClassesHours[day] = hoursCounter;
             }
-        return gapScore;
+        }
+        evenHoursScore = calculateSubClassesEvenHours(subClassesHours);
+        return gapScore + evenHoursScore;
+    }
+
+    /**
+     * Calculates the difference of the teaching hours between the days of a subClass
+     * comparing each day with the others. If all days are even result is 0.
+     * @return evenHoursScore represents the negative score for each difference
+     * that occurs between the maximum teaching hours of each day.
+     */
+    private int calculateSubClassesEvenHours(int[] subClassesHours) {
+        int evenHoursScore = 0;
+        for (int day = 0; day < subClassesHours.length-1; day++) {
+            for (int nextDay = day+1; nextDay < subClassesHours.length; nextDay++) {
+                evenHoursScore = evenHoursScore + Math.abs(day - nextDay);
+            }
+        }
+        return evenHoursScore;
     }
 
     public double fitness() { return 0.0; }
