@@ -29,7 +29,7 @@
  *
 */
 
-import myObjects.Combination;
+import search.Gene;
 import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
@@ -44,7 +44,7 @@ public class Main {
         Importer importer = new Importer();
         LinkedList<Lesson> lessons = null;
         LinkedList<Teacher> teachers = null;
-        LinkedList<Combination> combinations = null;
+        LinkedList<Gene> genes = null;
 
         try {
             lessons = importer.createLessonsList(args[0]);
@@ -55,7 +55,7 @@ public class Main {
         }
 
         if (lessons!=null && teachers!=null)
-            combinations = Combination.createAllCombinations(lessons, teachers);
+            genes = Gene.createAllCombinations(lessons, teachers);
 
         if (lessons != null) {
             System.out.println("Lessons:");
