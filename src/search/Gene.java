@@ -1,7 +1,7 @@
 package search;
 
-import io.Lesson;
-import io.Teacher;
+import myObjects.Lesson;
+import myObjects.Teacher;
 
 public class Gene {
 

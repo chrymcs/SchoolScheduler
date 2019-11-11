@@ -29,9 +29,10 @@
  *
 */
 
-import io.Lesson;
+import myObjects.Combination;
+import myObjects.Lesson;
 import io.Importer;
-import io.Teacher;
+import myObjects.Teacher;
 import search.Chromosome;
 import search.Genetic;
 import java.util.LinkedList;
@@ -43,6 +44,7 @@ public class Main {
         Importer importer = new Importer();
         LinkedList<Lesson> lessons = null;
         LinkedList<Teacher> teachers = null;
+        LinkedList<Combination> combinations = null;
 
         try {
             lessons = importer.createLessonsList(args[0]);
@@ -51,6 +53,9 @@ public class Main {
             System.err.println("No proper arguments given.");
             System.err.println("The arguments should be lessons.txt teachers.txt");
         }
+
+        if (lessons!=null && teachers!=null)
+            combinations = Combination.createAllCombinations(lessons, teachers);
 
         if (lessons != null) {
             System.out.println("Lessons:");

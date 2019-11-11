@@ -1,4 +1,4 @@
-package io;
+package myObjects;
 
 public class Lesson {
 
