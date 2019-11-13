@@ -1,5 +1,10 @@
 package search;
 
+import myObjects.Lesson;
+import myObjects.Teacher;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -10,9 +15,9 @@ import java.util.Random;
  */
 public class Chromosome {
 
-    private Gene[][][] genes; // hoursPerDay - daysPerWeek - subClassesPerSchedule
-    int maxSubClass, maxDay, maxHour;
-    private int fitness;
+    private Gene[][][][] genes; // hoursPerDay - daysPerWeek - subClassesPerSchedule
+    private int maxClasses, classA, classB, classC;
+    private int fitness, maxSubClasses, maxDay, maxHour;
 
     /**
      * Constructor for the preparation of the initial Chromosomes.
@@ -20,28 +25,38 @@ public class Chromosome {
      * all the valid combinations that were already created, by the
      * given arguments (txt files).
      * */
-    public Chromosome(LinkedList<Gene> genes, int maxSubClass,
-                      int maxDay, int maxHour) {
-        this.maxSubClass = maxSubClass;
-        this.maxDay = maxDay;
-        this.maxHour = maxHour;
-        this.genes = new Gene[maxSubClass][maxDay][maxHour];
+    public Chromosome(LinkedList<LinkedList<Gene>> genesList, int maxD, int maxH,
+                      int classA, int classB, int classC) {
+        this.classA = classA;
+        this.classB = classB;
+        this.classC = classC;
+        //get the max number of subClass of classes A,B,C
+        maxSubClasses = Math.max(Math.max(classA,classB), classC);
+        this.maxDay = maxD;
+        this.maxHour = maxH;
+        this.genes = new Gene[3][maxSubClasses][maxDay][maxHour];
         Random r = new Random();
-        int upperRandomLimit = genes.size();
-        for (int subClass = 0; subClass < maxSubClass; subClass++) { //foreach subClass
-            for (int day = 0; day < maxDay; day++) { //foreach day
-                for (int hour = 0; hour < maxHour  ; hour++) { //foreach hour
-                    this.genes[subClass][day][hour] = genes.get(r.nextInt(upperRandomLimit));
+        int upperRandomLimit;
+        for (int c = 0; c < 2; c++) {
+            upperRandomLimit = genesList.get(c).size();
+            for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
+                for (int d = 0; d < maxDay; d++) { //foreach day
+                    for (int h = 0; h < maxHour  ; h++) { //foreach hour
+                        this.genes[c][s][d][h] = genesList.get(c).get(r.nextInt(upperRandomLimit));
+                    }
                 }
             }
-        }
         calculateFitness();
+        }
     }
 
     private void calculateFitness() {
-        int gapScore = calculateSubClassesScore();
-
+        int subClassesScore = calculateSubClassesScore();
+        int teachersScore = calculateTeachersScore();
+        int lessonsScore = calculateLessonsScore();
     }
+
+
 
     /**
      * Calculates the score for each Chromosome, regarding the constrains bound to
@@ -56,55 +71,146 @@ public class Chromosome {
      * (example for Monday to Friday hours: "5 - 5 - 5 - 4 - 4" will result in minus 6)
      * @return represents the negative score for gapScore and evenHoursScore.
      */
-    private int calculateSubClassesScore() {
+    private int calculateSubClassesScore () {
         int gapScore = 0; //changes only towards negative values
         int evenHoursScore = 0;
-        int [] subClassesHours = null;
-        for (int subClass = 0; subClass < maxSubClass; subClass++) {
-            subClassesHours = new int [maxDay];
-            for (int day = 0; day < maxDay; day++) {
-                int hoursCounter = 0;
-                boolean endOfDayFound = false;
-                for (int hour = maxHour-1; hour > 0; hour--) {
-                    if (genes[subClass][day][hour] != null) {
-                        hoursCounter++;
-                        if (!endOfDayFound) endOfDayFound = true;
-                    } else if (genes[subClass][day][hour] == null && endOfDayFound)
-                        gapScore--;
+        int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    int hoursCounter = 0;
+                    boolean endOfDayFound = false;
+                    for (int h = maxHour-1; h > 0; h--) {
+                        if (genes[c][s][d][h] != null) {
+                            hoursCounter++;
+                            if (!endOfDayFound) endOfDayFound = true;
+                        } else if (genes[c][s][d][h] == null && endOfDayFound)
+                            gapScore--;
+                    }
+                    subClassesHours[c][s][d] = hoursCounter;
                 }
-                subClassesHours[day] = hoursCounter;
             }
         }
-        evenHoursScore = calculateSubClassesEvenHours(subClassesHours);
+        evenHoursScore = calcSubClassesEvenHours(subClassesHours);
         return gapScore + evenHoursScore;
+    }
+
+    private int calculateTeachersScore() {
+        int consecutiveHoursScore = 0;
+        int evenHoursScore = 0;
+        int teacherId, lessonId;
+        LinkedList<Lesson> assignedLessons = new LinkedList<>();
+        HashMap<Integer,Integer> assignedTeachers = new HashMap<>();
+        //TODO: γέμισμα assignedTeachers (hashmap) με τη λογική
+        // (teacherId - πόσες φορές τον βρήκα στη loopα)
+        int firstTeacher, middleTeacher, lastTeacher;
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    if (genes[c][s][d][0] !=null
+                            && !assignedLessons.contains(genes[c][s][d][0].getLesson()))
+                        assignedLessons.add(genes[c][s][d][0].getLesson());
+                    if (genes[c][s][d][1] != null
+                            && !assignedLessons.contains(genes[c][s][d][1].getLesson()))
+                        assignedLessons.add(genes[c][s][d][1].getLesson());
+                    for (int h = 2; h < maxHour ; h++) { //starts from the 3rd hour on
+                        if (genes[c][s][d][h] != null) {
+                            lastTeacher = genes[c][s][d][h].getTeacher().getId();
+                            if (!assignedLessons.contains(genes[c][s][d][h].getLesson()))
+                                assignedLessons.add(genes[c][s][d][h].getLesson());
+                        } else lastTeacher = -1;
+                        if (genes[c][s][d][h - 1] != null) {
+                            middleTeacher = genes[c][s][d][h - 1].getTeacher().getId();
+                        } else middleTeacher = -1;
+                        if (genes[c][s][d][h - 2] != null) {
+                            firstTeacher = genes[c][s][d][h - 2].getTeacher().getId();
+                        } else firstTeacher = -1;
+                        consecutiveHoursScore = consecutiveHoursScore
+                                + compareTeachersId (firstTeacher, middleTeacher, lastTeacher);
+                    }
+                }
+            }
+        }
+        evenHoursScore = calcTeachersEvenHours(assignedLessons, assignedTeachers);
+        return consecutiveHoursScore + evenHoursScore;
+    }
+
+    private int calculateLessonsScore() {
+        return 0;
     }
 
     /**
      * Calculates the difference of the teaching hours between the days of a subClass
      * comparing each day with the others. If all days are even result is 0.
      * @return evenHoursScore represents the negative score for each difference
-     * that occurs between the maximum teaching hours of each day.
+     *        that occurs between the maximum teaching hours of each day.
      */
-    private int calculateSubClassesEvenHours(int[] subClassesHours) {
+    private int calcSubClassesEvenHours (int[][][] subClassesHours) {
         int evenHoursScore = 0;
-        for (int day = 0; day < subClassesHours.length-1; day++) {
-            for (int nextDay = day+1; nextDay < subClassesHours.length; nextDay++) {
-                evenHoursScore = evenHoursScore + Math.abs(day - nextDay);
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay-1; d++) {
+                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
+                        evenHoursScore = evenHoursScore +
+                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
+                    }
+                }
             }
         }
         return evenHoursScore;
+    }
+
+    /**
+     *  Calculates the score for the teachers that could teach the same subject.
+     * If a lesson can be taught only by 1 teacher it skips the calculation as it
+     * did not have other option.
+     * @param assignedLessons lessons that were actually assigned into the
+     *                       schedule - chromosome
+     */
+    private int calcTeachersEvenHours (LinkedList<Lesson> assignedLessons,
+                                       HashMap<Integer,Integer> assignedTeachers) {
+        int teachersEvenHours = 0;
+        int teacherAHours = -1;
+        int teacherBHours = -1;
+        for (Lesson al : assignedLessons) {
+            if (al.getAvailableTeachers().size() > 1) {
+                for (int teacherId: al.getAvailableTeachers()) {
+                    teacherAHours = teacherBHours;
+                    teacherBHours = assignedTeachers.get(teacherId);
+                }
+                teachersEvenHours =+ compareTeachersHours(teacherAHours,teacherBHours);
+            }
+        }
+        return teachersEvenHours;
+    }
+
+    private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
+        if (teacher_A == teacher_B &&
+                teacher_B == teacher_C &&
+                    teacher_C != -1) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private int compareTeachersHours (int teacher_A, int teacher_B) {
+        if (teacher_A == teacher_B &&
+                teacher_B != -1) {
+            return -1;
+        }
+        return 0;
     }
 
     public double fitness() { return 0.0; }
 
     //public Chromosome mutate() { return new Chromosome(); }
 
-    public Gene[][][] getGenes() {
+    public Gene[][][][] getGenes() {
         return genes;
     }
 
-    public void setGenes(Gene[][][] genes) {
-        this.genes = genes;
+    public void setGenes(Gene[][][][] genesList) {
+        this.genes = genesList;
     }
 
     public int getFitness() {

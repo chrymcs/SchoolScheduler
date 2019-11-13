@@ -12,10 +12,10 @@ public class Teacher {
 
     public Teacher() { }
 
-    public Teacher (int id, String name, LinkedList<Integer> courses, int dayHours, int weekHours) {
+    public Teacher (int id, String name, LinkedList<Integer> lessons, int dayHours, int weekHours) {
         this.id = id;
         this.name = name;
-        this.lessons = courses;
+        this.lessons = lessons;
         this.dayHours = dayHours;
         this.weekHours = weekHours;
     }

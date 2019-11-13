@@ -1,11 +1,15 @@
 package myObjects;
 
+import java.util.LinkedList;
+
 public class Lesson {
 
     private int id;
     private String title;
     private String classGrade;
     private int weekHours;
+    private LinkedList<Integer> availableTeachers;
+
 
     public Lesson() {    }
 
@@ -14,6 +18,10 @@ public class Lesson {
         this.title = title;
         this.classGrade = classGrade;
         this.weekHours = weekHours;
+    }
+
+    public void updateAvailableTeachers (Teacher teacher) {
+        this.availableTeachers.add(teacher.getId());
     }
 
     public int getId() {
@@ -46,6 +54,22 @@ public class Lesson {
 
     public void setWeekHours(int weekHours) {
         this.weekHours = weekHours;
+    }
+
+    public LinkedList<Integer> getLessons() {
+        return availableTeachers;
+    }
+
+    public void setLessons(LinkedList<Integer> lessons) {
+        this.availableTeachers = lessons;
+    }
+
+    public LinkedList<Integer> getAvailableTeachers() {
+        return availableTeachers;
+    }
+
+    public void setAvailableTeachers(LinkedList<Integer> availableTeachers) {
+        this.availableTeachers = availableTeachers;
     }
 
     @Override

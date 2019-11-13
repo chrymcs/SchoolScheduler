@@ -44,7 +44,8 @@ public class Main {
         Importer importer = new Importer();
         LinkedList<Lesson> lessons = null;
         LinkedList<Teacher> teachers = null;
-        LinkedList<Gene> genes = null;
+        LinkedList<LinkedList<Gene>> genesPerClass = new LinkedList<>();
+
 
         try {
             lessons = importer.createLessonsList(args[0]);
@@ -54,9 +55,11 @@ public class Main {
             System.err.println("The arguments should be lessons.txt teachers.txt");
         }
 
-        if (lessons!=null && teachers!=null)
-            genes = Gene.createAllCombinations(lessons, teachers);
-
+        if (lessons!=null && teachers!=null) {
+            genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Α"));
+            genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Β"));
+            genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Γ"));
+        }
         if (lessons != null) {
             System.out.println("Lessons:");
             for (Lesson lesson: lessons)

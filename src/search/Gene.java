@@ -3,6 +3,7 @@ package search;
 import myObjects.Lesson;
 import myObjects.Teacher;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -25,15 +26,21 @@ public class Gene {
      (or more) subject.
      @param lessons LinkedList of lessons (assuming all)
      @param teachers LinkedList of teachers (assuming all)
+     @param classGrade String grade of class (A, B or C)
      @return LinkedList of Combination
      */
-    public static LinkedList<Gene> createAllCombinations (LinkedList<Lesson> lessons,
-                                                          LinkedList<Teacher> teachers ) {
+    public static LinkedList<Gene> createAllCombinationsPerClass (LinkedList<Lesson> lessons,
+                                                                 LinkedList<Teacher> teachers,
+                                                                 String classGrade) {
+
         LinkedList<Gene> genes = new LinkedList<>();
         for (Lesson lesson: lessons) {
-            for (Teacher teacher: teachers) {
-                if (teacher.getLessons().contains(lesson.getId()))
-                    genes.add(new Gene(lesson, teacher));
+            if (lesson.getClassGrade().equals(classGrade)) {
+                for (Teacher teacher : teachers) {
+                    if (teacher.getLessons().contains(lesson.getId()))
+                        genes.add(new Gene(lesson, teacher));
+                    lesson.updateAvailableTeachers(teacher);
+                }
             }
         }
         genes.add(null); //Null combination to represent no assignment
