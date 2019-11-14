@@ -8,19 +8,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Importer {
 
     // Function to read file of lessons
-    public LinkedList<Lesson> createLessonsList(String fileName) throws Exception {
+    public HashMap<Integer ,Lesson> createLessonsMap(String fileName) throws Exception {
 
         File file = new File(fileName);
         // the file includes greek, so we need to set charset = ISO-8859-7. UTF8 doesn't work.
         Charset iso = Charset.forName("ISO-8859-7");
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), iso));
 
-        LinkedList<Lesson> linkedList = new LinkedList<>();
+        HashMap<Integer, Lesson> hashMap = new HashMap<>();
         String str;
 
         // Lessons
@@ -43,19 +44,19 @@ public class Importer {
             lesson.setClassGrade(line[line.length - 2]);
             lesson.setWeekHours(Integer.parseInt(line[line.length - 1]));
 
-            linkedList.add(lesson);
+            hashMap.put(lesson.getId(), lesson);
         }
-        return linkedList;
+        return hashMap;
     }
 
-    public LinkedList <Teacher> createTeachersList (String fileName) throws Exception {
+    public HashMap<Integer ,Teacher> createTeachersMap(String fileName) throws Exception {
 
         File file = new File(fileName);
         // the file includes greek, so we need to set charset = ISO-8859-7. UTF8 doesn't work.
         Charset iso = Charset.forName("ISO-8859-7");
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), iso));
 
-        LinkedList<Teacher> linkedList = new LinkedList<>();
+        HashMap<Integer ,Teacher> hashMap = new HashMap<>();
         String str;
 
         while ((str = br.readLine()) != null) {
@@ -83,8 +84,8 @@ public class Importer {
                 teacher.setDayHours(Integer.parseInt(line[line.length - 2])); //day
                 teacher.setWeekHours(Integer.parseInt(line[line.length - 1])); //week
 
-                linkedList.add(teacher);
+            hashMap.put(teacher.getId(), teacher);
         }
-        return linkedList;
+        return hashMap;
     }
 }

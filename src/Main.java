@@ -35,6 +35,8 @@ import io.Importer;
 import myObjects.Teacher;
 import search.Chromosome;
 import search.Genetic;
+
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Main {
@@ -42,14 +44,14 @@ public class Main {
     public static void main(String[] args) {
 
         Importer importer = new Importer();
-        LinkedList<Lesson> lessons = null;
-        LinkedList<Teacher> teachers = null;
+        HashMap<Integer ,Lesson> lessons = null;
+        HashMap<Integer ,Teacher> teachers = null;
         LinkedList<LinkedList<Gene>> genesPerClass = new LinkedList<>();
 
 
         try {
-            lessons = importer.createLessonsList(args[0]);
-            teachers = importer.createTeachersList(args[1]);
+            lessons = importer.createLessonsMap(args[0]);
+            teachers = importer.createTeachersMap(args[1]);
         } catch (Exception e) {
             System.err.println("No proper arguments given.");
             System.err.println("The arguments should be lessons.txt teachers.txt");
@@ -62,17 +64,17 @@ public class Main {
         }
         if (lessons != null) {
             System.out.println("Lessons:");
-            for (Lesson lesson: lessons)
-                System.out.println(lesson);
+            for (int lessonId: lessons.keySet())
+                System.out.println(lessons.get(lessonId));
         }
 
         if (teachers != null) {
             System.out.println("Teachers:");
-            for (Teacher teacher: teachers)
-                System.out.println(teacher);
+            for (int teacherId: teachers.keySet())
+                System.out.println(teachers.get(teacherId));
         }
 
-        Genetic genetic = new Genetic();
+        Genetic genetic = new Genetic(lessons, teachers);
 
         //random values for testing
         Chromosome solution = genetic.start(100, 0.1, 1, 1000);

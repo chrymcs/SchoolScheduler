@@ -1,12 +1,22 @@
 package search;
 
+import myObjects.Lesson;
+import myObjects.Teacher;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Genetic {
 
     private ArrayList<Chromosome> population;
+    private HashMap<Integer,Lesson> allLessons;
+    private HashMap<Integer,Teacher> allTeachers;
 
-    public Genetic() { }
+    public Genetic(HashMap<Integer,Lesson> allLessons, HashMap<Integer,Teacher> allTeachers) {
+        this.allLessons = allLessons;
+        this.allTeachers = allTeachers;
+    }
 
     /**
      * @param populationSize: The size of the population in every step

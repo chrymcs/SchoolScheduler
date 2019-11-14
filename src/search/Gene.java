@@ -29,17 +29,17 @@ public class Gene {
      @param classGrade String grade of class (A, B or C)
      @return LinkedList of Combination
      */
-    public static LinkedList<Gene> createAllCombinationsPerClass (LinkedList<Lesson> lessons,
-                                                                 LinkedList<Teacher> teachers,
+    public static LinkedList<Gene> createAllCombinationsPerClass (HashMap<Integer,Lesson> lessons,
+                                                                  HashMap<Integer,Teacher> teachers,
                                                                  String classGrade) {
 
         LinkedList<Gene> genes = new LinkedList<>();
-        for (Lesson lesson: lessons) {
-            if (lesson.getClassGrade().equals(classGrade)) {
-                for (Teacher teacher : teachers) {
-                    if (teacher.getLessons().contains(lesson.getId()))
-                        genes.add(new Gene(lesson, teacher));
-                    lesson.updateAvailableTeachers(teacher);
+        for (int lessonId: lessons.keySet()) {
+            if (lessons.get(lessonId).getClassGrade().equals(classGrade)) {
+                for (int teacherId : teachers.keySet()) {
+                    if (teachers.get(teacherId).getLessons().contains(lessonId))
+                        genes.add(new Gene(lessons.get(lessonId), teachers.get(teacherId)));
+                    lessons.get(lessonId).updateAvailableTeachers(teachers.get(teacherId));
                 }
             }
         }
