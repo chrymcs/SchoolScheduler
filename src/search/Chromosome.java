@@ -5,6 +5,7 @@ import myObjects.Teacher;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -48,49 +49,60 @@ public class Chromosome {
         this.genes = new Gene[3][maxSubClasses][maxDay][maxHour];
         Random r = new Random();
         int upperRandomLimit;
-        HashMap<Teacher, Integer> teachersMaxDayHours = new HashMap<>();
-        HashMap<Teacher, Integer> teachersDayHours = new HashMap<>();
+
+        //A list that will hold 5 hashmaps of teachers and their daily hours
+        LinkedList<HashMap<Teacher, Integer>> teachersDayHoursAllClasses =
+                new LinkedList<HashMap<Teacher, Integer>>();
+        for (int i = 0; i < 5; i++) {
+            teachersDayHoursAllClasses.add(new HashMap<>());
+        }
+
         for (int c = 0; c <= 2; c++) {
             upperRandomLimit = genesList.get(c).size();
             for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
                 for (int d = 0; d < maxDay; d++) { //foreach day
-                HashMap<Teacher, Integer> teachersInnerDayHours = new HashMap<>();
+                HashMap<Teacher, Integer> teachersDayHours1Class = new HashMap<>();
                     for (int h = 0; h < maxHour  ; h++) { //foreach hour
                         gene = genesList.get(c).get(r.nextInt(upperRandomLimit));
                         this.genes[c][s][d][h] = gene;
 
-                        //TODO:meta ton orismo tou gene ston pinaka tou chromo skeftika na
-                        // enimeronoume parallila tous pinakes twn teachers kai lessons (tous
-                        // arxikous) oson afora stis wres (week kai day gia ton teacher kai week
-                        // gia to lesson) etsi molis exoume valei ola ta genes tha exoume eukola
-                        // ton pliroforia an ola ta mathimata exoun kalifthei kai an oloi oi
-                        // teachers exoun kanei to polu tis wres pou mporousan (dld mporouse 5
-                        // kai ekane 6 telika se mia mera i se mia vdomada). Autin tin pliroforia
-                        // skeftika na tin xrisimopoiisoume gia na dosoume ena megalo bonus
-                        // vathmologias (px 250) kata ton upologismo tou fitness. Etsi tha
-                        // prokuptoun chromosomes polu kalutera apo ta alla  me + 500 pontous kai
-                        // tha einai auta pou ekanan ola ta mathimata kai parallila oi kathigites
-                        // den mas kourastikan. Episis allaksa tis 2 vathmologies p sou eksigousa
-                        // kai tis ekana thetikes afou vrika poies einai oi megistes thetikes
-                        // times pou mporei na paroun
-
+                        //decreasing week hours of each teacher when assigned
                         Teacher teacher = gene.getTeacher();
                         int teachersWeekHours = allTeachers.get(teacher.getId()).getWeekHours();
                         allTeachers.get(teacher.getId()).setWeekHours(teachersWeekHours - 1);
 
-                        int currentHoursValue = teachersInnerDayHours.getOrDefault(teacher, 0);
-                        teachersInnerDayHours.put(teacher, currentHoursValue + 1);
+                        //keeping for each teacher that occurs the number of hours that teached
+                        // in that day in 1 subclass
+                        int currentHoursValue = teachersDayHours1Class.getOrDefault(teacher, 0);
+                        teachersDayHours1Class.put(teacher, currentHoursValue + 1);
 
-                        assignedTeachers = updateAssignedTeachers(assignedTeachers,
-                                gene.getTeacher());
-                        assignedLessons = updateAssignedLessons(assignedLessons,
-                                gene.getLesson());
+//                        assignedTeachers = updateAssignedTeachers(assignedTeachers,
+//                                gene.getTeacher());
+//                        assignedLessons = updateAssignedLessons(assignedLessons,
+//                                gene.getLesson());
                     }
-                    for (Teacher teacher : teachersInnerDayHours.keySet()) {
-                        teachersDayHours.put(teacher, teachersInnerDayHours.get(teacher));
+                    //at the end of that day we sum up all hours for each teacher
+                    for (Teacher teacher : teachersDayHours1Class.keySet()) {
+                        teachersDayHoursAllClasses.get(d).put(teacher,
+                                teachersDayHours1Class.get(teacher));
                     }
                 }
             }
+        }
+
+        //After the assignment of Genes all teachers (from hypothesis) are updated, regarding the
+        // day hours that they taught. Negative values indicate insufficiency in the schedule.
+        for (int teacherId : allTeachers.keySet()) {
+            int maxDayHours = 0;
+            Teacher teacher = allTeachers.get(teacherId);
+            for (int d = 0; d < 5; d++) {
+                if (maxDayHours
+                        < teachersDayHoursAllClasses.get(d).getOrDefault(teacher,0)) {
+                    maxDayHours = teachersDayHoursAllClasses.get(d).get(teacher);
+                }
+            }
+            int dayHoursBeforeGenes = allTeachers.get(teacherId).getDayHours();
+            allTeachers.get(teacherId).setDayHours(dayHoursBeforeGenes - maxDayHours);
         }
 
         calculateFitness();
