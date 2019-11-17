@@ -20,6 +20,8 @@ public class Teacher {
         this.weekHours = weekHours;
     }
 
+// Setters - Getters
+
     public int getId() {
         return id;
     }
@@ -40,8 +42,8 @@ public class Teacher {
         return lessons;
     }
 
-    public void setLessons(LinkedList<Integer> courses) {
-        this.lessons = courses;
+    public void setLessons(LinkedList<Integer> lessons) {
+        this.lessons = lessons;
     }
 
     public int getDayHours() {
@@ -62,8 +64,8 @@ public class Teacher {
 
     @Override
     public String toString() {
-        StringBuilder prefix = new StringBuilder("ID: " + id + " Name: " + name + " Lessons: [");
-        String suffix = "] Daily hours: " + dayHours + " Weekly hours: " + weekHours;
+        StringBuilder prefix = new StringBuilder("ID: " + id + " - Name: " + name + " - Lessons' ids: [");
+        String suffix = "] - Max daily hours: " + dayHours + " - Max weekly hours: " + weekHours;
 
         for (int i = 0; i < lessons.size() - 1; i++) {
             prefix.append(lessons.get(i)).append(", ");

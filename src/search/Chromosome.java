@@ -1,20 +1,30 @@
 package search;
 
+import com.sun.source.tree.ArrayAccessTree;
 import myObjects.Lesson;
 import myObjects.Teacher;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Class that represents a Schedule - Chromosome
- * Each gene in the Chromosome is a Combination of
- * lesson and teacher who is eligible to teach it
+ * Each Chromosome has 7*45 genes.
  */
 public class Chromosome {
 
+    private Gene[][] chromosome;
+    public Chromosome(Gene[][] chromosome) {
+        chromosome = new Gene[7][45]; //kathe fora pou kalw ton constructor ftiaxnei new chromosome, new program.
+        //test print
+        for (int i=0; i<7;i++) {
+            for (int j=0; j< 45; j++) {
+                System.out.println(chromosome[i][j]);
+            }
+        }
+    }
+
+
+/*
     private Gene[][][][] genes; // hoursPerDay - daysPerWeek - subClassesPerSchedule
     private int maxClasses = 3, maxDay = 5, maxHour = 7;
     private int classA, classB, classC, maxSubClasses;
@@ -25,12 +35,16 @@ public class Chromosome {
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
     private HashMap<Lesson,Integer> assignedLessons = new HashMap<>();
-    /**
+    */
+
+/**
      * Constructor for the preparation of the initial Chromosomes.
      * In order for the Chromosome to be prepared, we need to provide,
      * all the valid combinations that were already created, by the
      * given arguments (txt files).
      * */
+
+/*
     public Chromosome(LinkedList<LinkedList<Gene>> genesList,
                       HashMap<Integer,Teacher> teacherHashMap,
                       HashMap<Integer,Lesson> lessonHashMap,
@@ -114,7 +128,8 @@ public class Chromosome {
         int lessonsScore = calculateLessonsScore();
     }
 
-    /**
+    */
+/**
      * Calculates the score for each Chromosome, regarding the constrains bound to
      * subClasses.
      * <b>gapScore</b> keeps the negative value for every null 'empty' hour between teaching hours.
@@ -126,7 +141,8 @@ public class Chromosome {
      * number of teaching hours from the others
      * (example for Monday to Friday hours: "5 - 5 - 5 - 4 - 4" will result in minus 6)
      * @return represents the negative score for gapScore and evenHoursScore.
-     */
+     *//*
+
     private int calculateSubClassesScore () {
         int gapsCounter = 0;
         int gapsScore; //maximum = 100
@@ -214,12 +230,14 @@ public class Chromosome {
 
 
 
-    /**
+    */
+/**
      * Calculates the difference of the teaching hours between the days of a subClass
      * comparing each day with the others. If all days are even result is 0.
      * @return evenHoursScore represents the negative score for each difference
      *        that occurs between the maximum teaching hours of each day.
-     */
+     *//*
+
     private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxEvenHoursScore) {
         int temp = maxEvenHoursScore;
         for (int c = 0; c < maxClasses; c++) {
@@ -235,7 +253,8 @@ public class Chromosome {
         return temp;
     }
 
-    /**
+    */
+/**
      *  Calculates the score for the teachers that could teach the same subject.
      * If a lesson can be taught only by 1 teacher it skips the calculation as it
      * did not have other option.
@@ -243,7 +262,8 @@ public class Chromosome {
      *                       schedule - chromosome
      * @param assignedTeachers teachers that were actually assigned into the
      *                         scheduler -chromosome
-     */
+     *//*
+
     private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,
                                                HashMap<Teacher,Integer> assignedTeachers) {
         int teachersEvenHours = 0;
@@ -321,4 +341,6 @@ public class Chromosome {
     public void setFitness(int fitness) {
         this.fitness = fitness;
     }
+    */
 }
+

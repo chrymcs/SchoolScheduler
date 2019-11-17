@@ -2,7 +2,6 @@ package io;
 
 import myObjects.Lesson;
 import myObjects.Teacher;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +48,7 @@ public class Importer {
         return hashMap;
     }
 
+    // Function to read file of teachers
     public HashMap<Integer ,Teacher> createTeachersMap(String fileName) throws Exception {
 
         File file = new File(fileName);

@@ -6,9 +6,11 @@ public class Lesson {
 
     private int id;
     private String title;
-    private String classGrade;
+    private String classGrade; //taksi A,B,G
     private int weekHours;
-    private LinkedList<Integer> availableTeachers;
+    //poioi kathigites mporoun na didaksoun to mathima
+    //dineis kathigiti kai ton petaei sti lista
+    private LinkedList<Teacher> availableTeachers;
 
 
     public Lesson() {    }
@@ -20,9 +22,8 @@ public class Lesson {
         this.weekHours = weekHours;
     }
 
-    public void updateAvailableTeachers (Teacher teacher) {
-        this.availableTeachers.add(teacher.getId());
-    }
+
+// Setters - Getters
 
     public int getId() {
         return id;
@@ -56,24 +57,28 @@ public class Lesson {
         this.weekHours = weekHours;
     }
 
-    public LinkedList<Integer> getLessons() {
-        return availableTeachers;
-    }
 
-    public void setLessons(LinkedList<Integer> lessons) {
+/*    public LinkedList<Integer> getLessons() {
+        return availableTeachers;
+    }*/
+
+/*    public void setLessons(LinkedList<Integer> lessons) {
         this.availableTeachers = lessons;
-    }
+    }*/
 
-    public LinkedList<Integer> getAvailableTeachers() {
+
+    public LinkedList<Teacher> getAvailableTeachers() {
         return availableTeachers;
     }
 
-    public void setAvailableTeachers(LinkedList<Integer> availableTeachers) {
-        this.availableTeachers = availableTeachers;
+
+    public void setAvailableTeachers (Teacher teacher) {
+        availableTeachers.add(teacher);
     }
+
 
     @Override
     public String toString() {
-        return "ID: " + id + " Title: " + title + " Class: " + classGrade + " Hours per Week: " + weekHours;
+        return "\n - ID: " + id + "\n - Title: " + title+ "\n - Class: " + classGrade + "\n - Hours per Week: " + weekHours;
     }
 }
