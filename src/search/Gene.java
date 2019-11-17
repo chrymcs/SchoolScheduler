@@ -55,19 +55,19 @@ public class Gene {
     // an kaleseis ti methodo me classGrade=A , tha deis poioi kathigites didaskoun to kathe mathima tis taksis. Omoiws kai me classGrade=B or C
     public static LinkedList<Gene> combinationsPerClass (HashMap<Integer,Lesson> lessons, HashMap<Integer,Teacher> teachers, String classGrade) {
 
-        System.out.println("\nFor every lesson in " + classGrade + "' class, who can teach it?\n");
+        //System.out.println("\nFor every lesson in " + classGrade + "' class, who can teach it?\n");
 
         LinkedList<Gene> genes = new LinkedList<>();
 
         for (int lessonId: lessons.keySet()) {
             if (lessons.get(lessonId).getClassGrade().equals(classGrade)) { //an taksi pou didasketai to dwsmeno mathima = taksi pou dinetai
 
-                System.out.println(lessons.get(lessonId).getTitle() + " " + lessons.get(lessonId).getClassGrade() + "'");
+                //System.out.println(lessons.get(lessonId).getTitle() + " " + lessons.get(lessonId).getClassGrade() + "'");
 
                 for (int teacherId : teachers.keySet()) {
                     if (teachers.get(teacherId).getLessons().contains(lessonId)) { //vres poioi kathigites to didaskoun
 
-                        System.out.println(" - " + teachers.get(teacherId).getName());
+                        //System.out.println(" - " + teachers.get(teacherId).getName());
 
                         Gene g = new Gene(lessons.get(lessonId),teachers.get(teacherId)); //ftiakse new gonidio
                         genes.add(g); //prosthese to sthn lista
@@ -79,7 +79,8 @@ public class Gene {
 
             }
         }
-        genes.add(null); //Null combination to represent no assignment
+        //TODO an to vgaleis apo sxolio, sth main pou paw na ektipwsw th lista genes, petaei nullPointer exception.
+        //genes.add(null); //Null combination to represent no assignment
         return genes;
     }
 

@@ -19,7 +19,10 @@ public class Main {
         HashMap<Integer ,Lesson> lessons = null;
         HashMap<Integer ,Teacher> teachers = null;
         //LinkedList<LinkedList<Gene>> genesPerClass = new LinkedList<>();
-        LinkedList<Gene> genes = new LinkedList<>();
+        LinkedList<Gene> genesA = new LinkedList<>(); //gonidia A gymnasiou
+        LinkedList<Gene> genesB = new LinkedList<>(); //gonidia B gymnasiou
+        LinkedList<Gene> genesC = new LinkedList<>(); //gonidia C gymnasiou
+
 
 
         try {
@@ -31,9 +34,9 @@ public class Main {
         }
 
         if (lessons!=null && teachers!=null) {
-            genes = Gene.combinationsPerClass(lessons, teachers, "A");
-            //genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Β"));
-            //genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Γ"));
+            genesA = Gene.combinationsPerClass(lessons, teachers, "A");
+            genesB = Gene.combinationsPerClass(lessons, teachers, "B");
+            genesC = Gene.combinationsPerClass(lessons, teachers, "C");
         }
 
 
@@ -55,11 +58,23 @@ public class Main {
         //genetic.teachersList();
 
 
-        //TODO thelw na dw ti exei mesa h lista genes. Mou epistrefei tipota.
+        //thelw na dw ti exoun mesa oi listes genesA, genesB, genesC.
         System.out.println("\n LINKED LIST genes \n");
 
-        for (int i=0; i<genes.size(); i++) {
-            System.out.println(genes.get(i));
+        for (int i=0; i<genesA.size(); i++) {
+            System.out.println(genesA.get(i).getLesson().getTitle());
+            System.out.println(genesA.get(i).getLesson().getClassGrade() + "' Gymnasiou");
+            System.out.println(genesA.get(i).getTeacher().getName());
+        }
+        for (int i=0; i<genesB.size(); i++) {
+            System.out.println(genesB.get(i).getLesson().getTitle());
+            System.out.println(genesB.get(i).getLesson().getClassGrade() + "' Gymnasiou");
+            System.out.println(genesB.get(i).getTeacher().getName());
+        }
+        for (int i=0; i<genesC.size(); i++) {
+            System.out.println(genesC.get(i).getLesson().getTitle());
+            System.out.println(genesC.get(i).getLesson().getClassGrade() + "' Gymnasiou");
+            System.out.println(genesC.get(i).getTeacher().getName());
         }
 
 
