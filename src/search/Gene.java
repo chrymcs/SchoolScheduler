@@ -5,6 +5,7 @@ import myObjects.Teacher;
 
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 
@@ -68,19 +69,22 @@ public class Gene {
 
                         System.out.println(" - " + teachers.get(teacherId).getName());
 
-                        //TODO giati petaei error h available? mpainei mesa sthn if h eksw?
-
-
-                        genes.add(new Gene(lessons.get(lessonId), teachers.get(teacherId)));
+                        Gene g = new Gene(lessons.get(lessonId),teachers.get(teacherId)); //ftiakse new gonidio
+                        genes.add(g); //prosthese to sthn lista
                     }
                     //TODO
-                    lessons.get(lessonId).setAvailableTeachers(teachers.get(teacherId));
+                    //lessons.get(lessonId).setAvailableTeachers(teachers.get(teacherId));
 
                 }
+
             }
         }
         genes.add(null); //Null combination to represent no assignment
         return genes;
     }
-}
 
+    @Override
+    public String toString() {
+        return "";
+    }
+}

@@ -6,7 +6,9 @@ import search.Chromosome;
 import search.Gene;
 import search.Genetic;
 //import search.Chromosome;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Main {
@@ -17,6 +19,7 @@ public class Main {
         HashMap<Integer ,Lesson> lessons = null;
         HashMap<Integer ,Teacher> teachers = null;
         //LinkedList<LinkedList<Gene>> genesPerClass = new LinkedList<>();
+        LinkedList<Gene> genes = new LinkedList<>();
 
 
         try {
@@ -27,11 +30,11 @@ public class Main {
             System.err.println("The arguments should be lessons.txt teachers.txt");
         }
 
-/*        if (lessons!=null && teachers!=null) {
-            genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Α"));
-            genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Β"));
-            genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Γ"));
-        }*/
+        if (lessons!=null && teachers!=null) {
+            genes = Gene.combinationsPerClass(lessons, teachers, "A");
+            //genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Β"));
+            //genesPerClass.add(Gene.createAllCombinationsPerClass(lessons, teachers, "Γ"));
+        }
 
 
 /*        if (lessons != null) {
@@ -51,9 +54,14 @@ public class Main {
         //genetic.lessonsList();
         //genetic.teachersList();
 
-        LinkedList<Gene> genes = new LinkedList<>();
 
-        Gene.combinationsPerClass(lessons,teachers,"C");
+        //TODO thelw na dw ti exei mesa h lista genes. Mou epistrefei tipota.
+        System.out.println("\n LINKED LIST genes \n");
+
+        for (int i=0; i<genes.size(); i++) {
+            System.out.println(genes.get(i));
+        }
+
 
         //random values for testing
         //Chromosome solution = genetic.start(100, 0.1, 1, 1000);
