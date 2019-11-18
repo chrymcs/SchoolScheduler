@@ -18,10 +18,13 @@ public class Main {
         Importer importer = new Importer();
         HashMap<Integer ,Lesson> lessons = null;
         HashMap<Integer ,Teacher> teachers = null;
-        //LinkedList<LinkedList<Gene>> genesPerClass = new LinkedList<>();
+
         LinkedList<Gene> genesA = new LinkedList<>(); //gonidia A gymnasiou
         LinkedList<Gene> genesB = new LinkedList<>(); //gonidia B gymnasiou
         LinkedList<Gene> genesC = new LinkedList<>(); //gonidia C gymnasiou
+
+        LinkedList<LinkedList<Gene>> genes = new LinkedList<>();
+
 
 
 
@@ -39,6 +42,10 @@ public class Main {
             genesC = Gene.combinationsPerClass(lessons, teachers, "C");
         }
 
+        //vale ola ta gonidia se mia lista.
+        genes.add(genesA);
+        genes.add(genesB);
+        genes.add(genesC);
 
 /*        if (lessons != null) {
             System.out.println("Lessons:");
@@ -52,32 +59,41 @@ public class Main {
                 System.out.println(teachers.get(teacherId));
         }*/
 
-        Genetic genetic = new Genetic(lessons, teachers);
-
+        //Genetic genetic = new Genetic(lessons, teachers);
         //genetic.lessonsList();
         //genetic.teachersList();
 
 
-        //thelw na dw ti exoun mesa oi listes genesA, genesB, genesC.
-        System.out.println("\n LINKED LIST genes \n");
+        //thelw na dw ti exei mesa h lista genes h opoia apoteleitai apo 3 listes (ta genes twn 3 taksewn)
+        System.out.println("\nLINKED LIST 'genes' \n");
 
-        for (int i=0; i<genesA.size(); i++) {
-            System.out.println(genesA.get(i).getLesson().getTitle());
-            System.out.println(genesA.get(i).getLesson().getClassGrade() + "' Gymnasiou");
-            System.out.println(genesA.get(i).getTeacher().getName());
-        }
-        for (int i=0; i<genesB.size(); i++) {
-            System.out.println(genesB.get(i).getLesson().getTitle());
-            System.out.println(genesB.get(i).getLesson().getClassGrade() + "' Gymnasiou");
-            System.out.println(genesB.get(i).getTeacher().getName());
-        }
-        for (int i=0; i<genesC.size(); i++) {
-            System.out.println(genesC.get(i).getLesson().getTitle());
-            System.out.println(genesC.get(i).getLesson().getClassGrade() + "' Gymnasiou");
-            System.out.println(genesC.get(i).getTeacher().getName());
+        //genes.get(0) -> genesA
+        //genes.get(1) -> genesB
+        //genes.get(2) -> genesC
+
+        for (int i=0; i<genes.size(); i++) {
+            if (i==0) { //genesA
+                System.out.println("A' Gymnasiou");
+                for (int a=0; a<genesA.size(); a++){
+                    //me to genes.get(i) exw epileksei 1 apo tis 3 listes kai me to .get(a) paw mesa sthn lista a
+                    System.out.println(genes.get(i).get(a).getLesson().getTitle() + " " + genes.get(i).get(a).getLesson().getClassGrade() + "' - " + genes.get(i).get(a).getTeacher().getName());
+                }
+            }
+            else if (i==1) { //genesB
+                System.out.println("\nB' Gymnasiou");
+                for (int b=0; b<genesB.size(); b++){
+                    System.out.println(genes.get(i).get(b).getLesson().getTitle() + " " + genes.get(i).get(b).getLesson().getClassGrade() + "' - " + genes.get(i).get(b).getTeacher().getName());
+                }
+            }
+            else { //genesC
+                System.out.println("\nC' Gymnasiou");
+                for (int c=0; c<genesC.size(); c++){
+                    System.out.println(genes.get(i).get(c).getLesson().getTitle() + " " + genes.get(i).get(c).getLesson().getClassGrade() + "' - " + genes.get(i).get(c).getTeacher().getName());
+                }
+            }
         }
 
-
+        Chromosome ch = new Chromosome(genes);
         //random values for testing
         //Chromosome solution = genetic.start(100, 0.1, 1, 1000);
     }

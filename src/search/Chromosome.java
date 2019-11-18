@@ -13,11 +13,16 @@ import java.util.*;
 public class Chromosome {
 
     private Gene[][] chromosome;
-    public Chromosome(Gene[][] chromosome) {
+    public Chromosome(LinkedList<LinkedList<Gene>> genesList) {
         chromosome = new Gene[7][45]; //kathe fora pou kalw ton constructor ftiaxnei new chromosome, new program.
-        //test print
+
+        Random r = new Random();
         for (int i=0; i<7;i++) {
-            for (int j=0; j< 45; j++) {
+            for (int j=0; j< 1; j++) {
+                //test for A1: (0,0) to (6,0). diladi olh h 1h sthlh
+                chromosome[i][j] = genesList.get(0).get(r.nextInt(genesList.get(0).size()));
+
+                //test print
                 System.out.println(chromosome[i][j]);
             }
         }
