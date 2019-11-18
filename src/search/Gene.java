@@ -5,7 +5,6 @@ import myObjects.Teacher;
 
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 
@@ -53,34 +52,32 @@ public class Gene {
      @return LinkedList of Combination
      */
     // an kaleseis ti methodo me classGrade=A , tha deis poioi kathigites didaskoun to kathe mathima tis taksis. Omoiws kai me classGrade=B or C
-    public static LinkedList<Gene> combinationsPerClass (HashMap<Integer,Lesson> lessons, HashMap<Integer,Teacher> teachers, String classGrade) {
+    public static LinkedList<Gene> combinationsPerClass (HashMap<Integer,Lesson> lessons,
+                                                         HashMap<Integer,Teacher> teachers,
+                                                         String classGrade, int nullGenes) {
 
         //System.out.println("\nFor every lesson in " + classGrade + "' class, who can teach it?\n");
-
         LinkedList<Gene> genes = new LinkedList<>();
 
         for (int lessonId: lessons.keySet()) {
             if (lessons.get(lessonId).getClassGrade().equals(classGrade)) { //an taksi pou didasketai to dwsmeno mathima = taksi pou dinetai
-
-                //System.out.println(lessons.get(lessonId).getTitle() + " " + lessons.get(lessonId).getClassGrade() + "'");
-
                 for (int teacherId : teachers.keySet()) {
                     if (teachers.get(teacherId).getLessons().contains(lessonId)) { //vres poioi kathigites to didaskoun
-
-                        //System.out.println(" - " + teachers.get(teacherId).getName());
-
                         Gene g = new Gene(lessons.get(lessonId),teachers.get(teacherId)); //ftiakse new gonidio
                         genes.add(g); //prosthese to sthn lista
                     }
-                    //TODO
-                    //lessons.get(lessonId).setAvailableTeachers(teachers.get(teacherId));
-
+                    lessons.get(lessonId).setAvailableTeachers(teachers.get(teacherId));
                 }
-
             }
         }
-        //TODO an to vgaleis apo sxolio, sth main pou paw na ektipwsw th lista genes, petaei nullPointer exception.
-        //genes.add(null); //Null combination to represent no assignment
+        //combination of null lesson with null teacher
+        Lesson l = new Lesson(-1, "NULL", null, 0);
+        Teacher t = new Teacher(-1, "NULL", null, 0, 0);
+        Gene g = new Gene(l,t);
+
+        for (int i = 0; i < nullGenes; i++) {
+        genes.add(g);
+        }
         return genes;
     }
 

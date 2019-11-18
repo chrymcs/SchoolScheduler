@@ -1,6 +1,6 @@
 package search;
 
-import com.sun.source.tree.ArrayAccessTree;
+//import com.sun.source.tree.ArrayAccessTree;
 import myObjects.Lesson;
 import myObjects.Teacher;
 
@@ -12,27 +12,9 @@ import java.util.*;
  */
 public class Chromosome {
 
-    private Gene[][] chromosome;
-    public Chromosome(LinkedList<LinkedList<Gene>> genesList) {
-        chromosome = new Gene[7][45]; //kathe fora pou kalw ton constructor ftiaxnei new chromosome, new program.
 
-        Random r = new Random();
-        for (int i=0; i<7;i++) {
-            for (int j=0; j< 1; j++) {
-                //test for A1: (0,0) to (6,0). diladi olh h 1h sthlh
-                chromosome[i][j] = genesList.get(0).get(r.nextInt(genesList.get(0).size()));
-
-                //test print
-                System.out.println(chromosome[i][j]);
-            }
-        }
-    }
-
-
-/*
-    private Gene[][][][] genes; // hoursPerDay - daysPerWeek - subClassesPerSchedule
-    private int maxClasses = 3, maxDay = 5, maxHour = 7;
-    private int classA, classB, classC, maxSubClasses;
+    private Gene[][][][] chromosome; // hoursPerDay - daysPerWeek - subClassesPerSchedule
+    private int maxClasses = 3, maxDay = 5, maxHour = 7, maxSubClasses = 3;
     private int fitness, eligibleFitness;
     private int totalLessonHoursNeeded;
     private int [] hoursNeededPerClass = new int[3];
@@ -40,60 +22,58 @@ public class Chromosome {
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
     private HashMap<Lesson,Integer> assignedLessons = new HashMap<>();
-    */
 
-/**
-     * Constructor for the preparation of the initial Chromosomes.
-     * In order for the Chromosome to be prepared, we need to provide,
-     * all the valid combinations that were already created, by the
-     * given arguments (txt files).
-     * */
+    public Chromosome (Gene[][][][] childGenes) {
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    for (int h = 0; h < maxHour; h++) {
+                       this.chromosome[c][s][d][h] = childGenes[c][s][d][h];
+                    }
+                }
+            }
+        }
+    }
 
-/*
     public Chromosome(LinkedList<LinkedList<Gene>> genesList,
                       HashMap<Integer,Teacher> teacherHashMap,
-                      HashMap<Integer,Lesson> lessonHashMap,
-                      int classA, int classB, int classC,
-                      int totalLessonHoursNeeded, int[] hoursNeededPerClass) {
+                      HashMap<Integer,Lesson> lessonHashMap
+                      //int totalLessonHoursNeeded, int[] hoursNeededPerClass
+                        ) {
         allTeachers = teacherHashMap;
         allLessons = lessonHashMap;
-        this.totalLessonHoursNeeded = totalLessonHoursNeeded;
-        this.hoursNeededPerClass = hoursNeededPerClass;
-        this.classA = classA;
-        this.classB = classB;
-        this.classC = classC;
+        //this.totalLessonHoursNeeded = totalLessonHoursNeeded;
+        //this.hoursNeededPerClass = hoursNeededPerClass;
         Gene gene;
-        //get the max number of subClass of classes A,B,C
-        maxSubClasses = Math.max(Math.max(classA,classB), classC);
-        this.genes = new Gene[3][maxSubClasses][maxDay][maxHour];
+        this.chromosome = new Gene[3][3][5][7];
         Random r = new Random();
         int upperRandomLimit;
 
         //A list that will hold 5 hashmaps of teachers and their daily hours
-        LinkedList<HashMap<Teacher, Integer>> teachersDayHoursAllClasses =
-                new LinkedList<HashMap<Teacher, Integer>>();
-        for (int i = 0; i < 5; i++) {
-            teachersDayHoursAllClasses.add(new HashMap<>());
-        }
+        //LinkedList<HashMap<Teacher, Integer>> teachersDayHoursAllClasses =
+                //new LinkedList<HashMap<Teacher, Integer>>();
+        //for (int i = 0; i < 5; i++) {
+           // teachersDayHoursAllClasses.add(new HashMap<>());
+        //}
 
-        for (int c = 0; c <= 2; c++) {
+        for (int c = 0; c < maxClasses; c++) {
             upperRandomLimit = genesList.get(c).size();
             for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
                 for (int d = 0; d < maxDay; d++) { //foreach day
-                HashMap<Teacher, Integer> teachersDayHours1Class = new HashMap<>();
+                //HashMap<Teacher, Integer> teachersDayHours1Class = new HashMap<>();
                     for (int h = 0; h < maxHour  ; h++) { //foreach hour
                         gene = genesList.get(c).get(r.nextInt(upperRandomLimit));
-                        this.genes[c][s][d][h] = gene;
+                        this.chromosome[c][s][d][h] = gene;
 
                         //decreasing week hours of each teacher when assigned
-                        Teacher teacher = gene.getTeacher();
-                        int teachersWeekHours = allTeachers.get(teacher.getId()).getWeekHours();
-                        allTeachers.get(teacher.getId()).setWeekHours(teachersWeekHours - 1);
+                        //Teacher teacher = gene.getTeacher();
+                        //int teachersWeekHours = allTeachers.get(teacher.getId()).getWeekHours();
+                        //allTeachers.get(teacher.getId()).setWeekHours(teachersWeekHours - 1);
 
                         //keeping for each teacher that occurs the number of hours that teached
                         // in that day in 1 subclass
-                        int currentHoursValue = teachersDayHours1Class.getOrDefault(teacher, 0);
-                        teachersDayHours1Class.put(teacher, currentHoursValue + 1);
+                        //int currentHoursValue = teachersDayHours1Class.getOrDefault(teacher, 0);
+                        //teachersDayHours1Class.put(teacher, currentHoursValue + 1);
 
 //                        assignedTeachers = updateAssignedTeachers(assignedTeachers,
 //                                gene.getTeacher());
@@ -101,32 +81,31 @@ public class Chromosome {
 //                                gene.getLesson());
                     }
                     //at the end of that day we sum up all hours for each teacher
-                    for (Teacher teacher : teachersDayHours1Class.keySet()) {
-                        teachersDayHoursAllClasses.get(d).put(teacher,
-                                teachersDayHours1Class.get(teacher));
+                    //for (Teacher teacher : teachersDayHours1Class.keySet()) {
+                     //   teachersDayHoursAllClasses.get(d).put(teacher,
+                     //           teachersDayHours1Class.get(teacher));
                     }
                 }
             }
-        }
+
 
         //After the assignment of Genes all teachers (from hypothesis) are updated, regarding the
         // day hours that they taught. Negative values indicate insufficiency in the schedule.
-        for (int teacherId : allTeachers.keySet()) {
-            int maxDayHours = 0;
-            Teacher teacher = allTeachers.get(teacherId);
-            for (int d = 0; d < 5; d++) {
-                if (maxDayHours
-                        < teachersDayHoursAllClasses.get(d).getOrDefault(teacher,0)) {
-                    maxDayHours = teachersDayHoursAllClasses.get(d).get(teacher);
-                }
-            }
-            int dayHoursBeforeGenes = allTeachers.get(teacherId).getDayHours();
-            allTeachers.get(teacherId).setDayHours(dayHoursBeforeGenes - maxDayHours);
-        }
-
-        calculateFitness();
+//        for (int teacherId : allTeachers.keySet()) {
+//            int maxDayHours = 0;
+//            Teacher teacher = allTeachers.get(teacherId);
+//            for (int d = 0; d < 5; d++) {
+//                if (maxDayHours
+//                        < teachersDayHoursAllClasses.get(d).getOrDefault(teacher,0)) {
+//                    maxDayHours = teachersDayHoursAllClasses.get(d).get(teacher);
+//                }
+//            }
+//            int dayHoursBeforeGenes = allTeachers.get(teacherId).getDayHours();
+//            allTeachers.get(teacherId).setDayHours(dayHoursBeforeGenes - maxDayHours);
+//        }
     }
 
+    /*
     private void calculateFitness() {
         int subClassesScore = calculateSubClassesScore();
         int teachersScore = calculateTeachersScore();
@@ -263,10 +242,7 @@ public class Chromosome {
      *  Calculates the score for the teachers that could teach the same subject.
      * If a lesson can be taught only by 1 teacher it skips the calculation as it
      * did not have other option.
-     * @param assignedLessons lessons that were actually assigned into the
-     *                       schedule - chromosome
-     * @param assignedTeachers teachers that were actually assigned into the
-     *                         scheduler -chromosome
+     *
      *//*
 
     private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,
@@ -326,17 +302,18 @@ public class Chromosome {
         }
         return 0;
     }
+    */
 
     public double fitness() { return 0.0; }
 
     //public Chromosome mutate() { return new Chromosome(); }
 
-    public Gene[][][][] getGenes() {
-        return genes;
+    public Gene[][][][] getGenes () {
+        return this.chromosome;
     }
 
-    public void setGenes(Gene[][][][] genesList) {
-        this.genes = genesList;
+    public void setChromosome (Gene[][][][] genesList) {
+        this.chromosome = genesList;
     }
 
     public int getFitness() {
@@ -346,6 +323,34 @@ public class Chromosome {
     public void setFitness(int fitness) {
         this.fitness = fitness;
     }
-    */
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        String str = "";
+        for (int c = 0; c < maxClasses; c++) {
+            stringBuilder.append("Class: ");
+            stringBuilder.append(c+1);
+            stringBuilder.append("\n");
+            for (int s = 0; s < maxSubClasses; s++) {
+                stringBuilder.append("Subclass: ");
+                stringBuilder.append(s+1);
+                stringBuilder.append("\n");
+                for (int h = 0; h < maxHour ; h++) {
+                    for (int d = 0; d < maxDay; d++) {
+                        stringBuilder.append(chromosome[c][s][d][h].getLesson().getTitle());
+                        stringBuilder.append(" @ ");
+                        stringBuilder.append(chromosome[c][s][d][h].getTeacher().getName());
+                        stringBuilder.append(",");
+                    }
+                    stringBuilder.append("\n");
+                }
+                stringBuilder.append("\n");
+            }
+            stringBuilder.append("\n");
+        }
+        str = stringBuilder.toString();
+        return str;
+    }
 }
 

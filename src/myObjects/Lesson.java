@@ -10,7 +10,7 @@ public class Lesson {
     private int weekHours;
     //poioi kathigites mporoun na didaksoun to mathima
     //dineis kathigiti kai ton petaei sti lista
-    private LinkedList<Teacher> availableTeachers;
+    private LinkedList<Teacher> availableTeachers = new LinkedList<>();
 
 
     public Lesson() {    }
@@ -57,25 +57,13 @@ public class Lesson {
         this.weekHours = weekHours;
     }
 
-
-/*    public LinkedList<Integer> getLessons() {
-        return availableTeachers;
-    }*/
-
-/*    public void setLessons(LinkedList<Integer> lessons) {
-        this.availableTeachers = lessons;
-    }*/
-
-
     public LinkedList<Teacher> getAvailableTeachers() {
         return availableTeachers;
     }
 
-
     public void setAvailableTeachers (Teacher teacher) {
         availableTeachers.add(teacher);
     }
-
 
     @Override
     public String toString() {

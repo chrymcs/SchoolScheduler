@@ -1,4 +1,5 @@
 //import search.Gene;
+import io.Exporter;
 import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
@@ -25,9 +26,6 @@ public class Main {
 
         LinkedList<LinkedList<Gene>> genes = new LinkedList<>();
 
-
-
-
         try {
             lessons = importer.createLessonsMap(args[0]);
             teachers = importer.createTeachersMap(args[1]);
@@ -35,11 +33,11 @@ public class Main {
             System.err.println("No proper arguments given.");
             System.err.println("The arguments should be lessons.txt teachers.txt");
         }
-
+        int nullGenes = 5;
         if (lessons!=null && teachers!=null) {
-            genesA = Gene.combinationsPerClass(lessons, teachers, "A");
-            genesB = Gene.combinationsPerClass(lessons, teachers, "B");
-            genesC = Gene.combinationsPerClass(lessons, teachers, "C");
+            genesA = Gene.combinationsPerClass(lessons, teachers, "A", nullGenes);
+            genesB = Gene.combinationsPerClass(lessons, teachers, "B", nullGenes);
+            genesC = Gene.combinationsPerClass(lessons, teachers, "C", nullGenes);
         }
 
         //vale ola ta gonidia se mia lista.
@@ -47,21 +45,12 @@ public class Main {
         genes.add(genesB);
         genes.add(genesC);
 
-/*        if (lessons != null) {
-            System.out.println("Lessons:");
-            for (int lessonId: lessons.keySet())
-                System.out.println(lessons.get(lessonId));
-        }
-
-        if (teachers != null) {
-            System.out.println("Teachers:");
-            for (int teacherId: teachers.keySet())
-                System.out.println(teachers.get(teacherId));
-        }*/
-
-        //Genetic genetic = new Genetic(lessons, teachers);
+        Genetic genetic = new Genetic(lessons, teachers, genes);
         //genetic.lessonsList();
         //genetic.teachersList();
+        genetic.initializePopulation(100);
+
+        Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
 
 
         //thelw na dw ti exei mesa h lista genes h opoia apoteleitai apo 3 listes (ta genes twn 3 taksewn)
@@ -93,7 +82,6 @@ public class Main {
             }
         }
 
-        Chromosome ch = new Chromosome(genes);
         //random values for testing
         //Chromosome solution = genetic.start(100, 0.1, 1, 1000);
     }
