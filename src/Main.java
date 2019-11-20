@@ -52,7 +52,9 @@ public class Main {
 
         Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
 
-        System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
+        Chromosome ch = new Chromosome(genes,teachers,lessons);
+        ch.calculateTeachersScore();
+       // System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
 
 
 
