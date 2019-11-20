@@ -23,12 +23,12 @@ public class Chromosome {
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
     private HashMap<Lesson,Integer> assignedLessons = new HashMap<>();
 
-    public Chromosome (Gene[][][][] childGenes) {
+    public Chromosome (Gene[][][][] childChromosome) {
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 0; h < maxHour; h++) {
-                       this.chromosome[c][s][d][h] = childGenes[c][s][d][h];
+                       this.chromosome[c][s][d][h] = childChromosome[c][s][d][h];
                     }
                 }
             }
@@ -103,61 +103,66 @@ public class Chromosome {
 //            int dayHoursBeforeGenes = allTeachers.get(teacherId).getDayHours();
 //            allTeachers.get(teacherId).setDayHours(dayHoursBeforeGenes - maxDayHours);
 //        }
+
+        calculateFitness();
     }
 
-    /*
+
     private void calculateFitness() {
         int subClassesScore = calculateSubClassesScore();
-        int teachersScore = calculateTeachersScore();
-        int lessonsScore = calculateLessonsScore();
+        //int teachersScore = calculateTeachersScore();
+        //int lessonsScore = calculateLessonsScore();
+        fitness = subClassesScore;
     }
 
-    */
-/**
-     * Calculates the score for each Chromosome, regarding the constrains bound to
-     * subClasses.
-     * <b>gapScore</b> keeps the negative value for every null 'empty' hour between teaching hours.
-     * When an empty hour is present at the beginning of a day (for each subClass)
-     * we also consider it to be a gap.
-     * For every subclass, every day, the method searches for the last teaching hour.
-     * Moving back towards the first hour it detects the occuring gaps.
-     * <b>evenHoursScore</b> keeps the negative value for every day that has different
-     * number of teaching hours from the others
-     * (example for Monday to Friday hours: "5 - 5 - 5 - 4 - 4" will result in minus 6)
-     * @return represents the negative score for gapScore and evenHoursScore.
-     *//*
 
+
+    /**
+     *
+     * @return
+     */
     private int calculateSubClassesScore () {
-        int gapsCounter = 0;
-        int gapsScore; //maximum = 100
-        int maxEvenHoursScore = 42 * (classA + classB + classC);
+        int gapsCounter;
+        int gapsScore = 0; //total gap hours
+        int teachingHoursCounter; //total teaching hours
+        boolean endOfDayFound;
+        int maxEvenHoursScore = 42 * (3);
         int evenHoursScore;
         int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
-                    int hoursCounter = 0;
-                    boolean endOfDayFound = false;
-                    for (int h = maxHour-1; h > 0; h--) {
-                        if (genes[c][s][d][h] != null) {
-                            hoursCounter++;
+                    //int hoursCounter = 0;
+                    endOfDayFound = false;
+                    teachingHoursCounter = 0;
+                    gapsCounter = 0;
+                    for (int h = maxHour-1; h >= 0; h--) {
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) { //px kostas math
+                            //hoursCounter++;
+                            teachingHoursCounter++;
                             if (!endOfDayFound) endOfDayFound = true;
-                        } else if (genes[c][s][d][h] == null && endOfDayFound) {
+                        } else if (chromosome[c][s][d][h].getLesson().getId() < 0 && endOfDayFound) {
                             gapsCounter++;
+                            teachingHoursCounter++;
                         }
                     }
-                    subClassesHours[c][s][d] = hoursCounter;
+                    if (teachingHoursCounter > 0) {
+                        gapsScore =
+                                gapsScore + (teachingHoursCounter - gapsCounter)/teachingHoursCounter * 100;
+
+                    }
                 }
             }
+                    //subClassesHours[c][s][d] = hoursCounter;
         }
-        //TODO: check formula
-        gapsScore = Math.round ((float) ((totalLessonHoursNeeded - gapsCounter)
-                                                        / totalLessonHoursNeeded) * 100);
-        evenHoursScore = Math.round ((float) (calcSubClassesEvenHours(subClassesHours,
-                                                                                maxEvenHoursScore)
-                                                        / maxEvenHoursScore) * 100);
-        return gapsScore + evenHoursScore;
+
+        gapsScore = gapsScore / (9 * 5);
+        //evenHoursScore = Math.round ((float) (calcSubClassesEvenHours(subClassesHours,
+                                                     //                           maxEvenHoursScore)
+                                                   //     / maxEvenHoursScore) * 100);
+        return gapsScore; //+ evenHoursScore;
     }
+
 
     private int calculateTeachersScore() {
         int consecutiveHoursScore = 0;
@@ -169,82 +174,69 @@ public class Chromosome {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 2; h < maxHour ; h++) { //starts from the 3rd hour on
-                        if (genes[c][s][d][h] != null) {
-                            lastTeacher = genes[c][s][d][h].getTeacher().getId();
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) {
+                            lastTeacher = chromosome[c][s][d][h].getTeacher().getId();
                         } else lastTeacher = -1;
-                        if (genes[c][s][d][h - 1] != null) {
-                            middleTeacher = genes[c][s][d][h - 1].getTeacher().getId();
+                        if (chromosome[c][s][d][h-1].getLesson().getId() > 0) {
+                            middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
                         } else middleTeacher = -1;
-                        if (genes[c][s][d][h - 2] != null) {
-                            firstTeacher = genes[c][s][d][h - 2].getTeacher().getId();
+                        if (chromosome[c][s][d][h-2].getLesson().getId() > 0) {
+                            firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
                         } else firstTeacher = -1;
-                        consecutiveHoursScore = consecutiveHoursScore
-                                + compareTeachersId (firstTeacher, middleTeacher, lastTeacher);
+                        //consecutiveHoursScore = consecutiveHoursScore
+                                //+ compareTeachersId (firstTeacher, middleTeacher, lastTeacher);
                     }
                 }
             }
         }
-        evenHoursScore = calcTeachersEvenHoursPerLesson(assignedLessons, assignedTeachers);
+        //evenHoursScore = calcTeachersEvenHoursPerLesson(assignedLessons, assignedTeachers);
         return consecutiveHoursScore + evenHoursScore;
     }
 
-    private int calculateLessonsScore() {
-        return 0;
-    }
+//    private int calculateLessonsScore() {
+//        return 0;
+//    }
+//
+//    private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
+//                                                           Lesson lesson) {
+//        if (!assignedLessons.containsKey(lesson)) {
+//            assignedLessons.put(lesson,1);
+//        } else {
+//            assignedLessons.put(lesson, assignedLessons.get(lesson) + 1);
+//        }
+//        return assignedLessons;
+//    }
+//
+//    private HashMap<Teacher,Integer> updateAssignedTeachers (HashMap<Teacher,Integer> assignedTeachers,
+//                                                           Teacher teacher) {
+//        if (!assignedTeachers.containsKey(teacher)) {
+//            assignedTeachers.put(teacher,1);
+//        } else {
+//            assignedTeachers.put(teacher, assignedTeachers.get(teacher) + 1);
+//        }
+//        return assignedTeachers;
+//    }
 
-    private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
-                                                           Lesson lesson) {
-        if (!assignedLessons.containsKey(lesson)) {
-            assignedLessons.put(lesson,1);
-        } else {
-            assignedLessons.put(lesson, assignedLessons.get(lesson) + 1);
-        }
-        return assignedLessons;
-    }
-
-    private HashMap<Teacher,Integer> updateAssignedTeachers (HashMap<Teacher,Integer> assignedTeachers,
-                                                           Teacher teacher) {
-        if (!assignedTeachers.containsKey(teacher)) {
-            assignedTeachers.put(teacher,1);
-        } else {
-            assignedTeachers.put(teacher, assignedTeachers.get(teacher) + 1);
-        }
-        return assignedTeachers;
-    }
 
 
 
-    */
-/**
-     * Calculates the difference of the teaching hours between the days of a subClass
-     * comparing each day with the others. If all days are even result is 0.
-     * @return evenHoursScore represents the negative score for each difference
-     *        that occurs between the maximum teaching hours of each day.
-     *//*
+//    private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxEvenHoursScore) {
+//        int temp = maxEvenHoursScore;
+//        for (int c = 0; c < maxClasses; c++) {
+//            for (int s = 0; s < maxSubClasses; s++) {
+//                for (int d = 0; d < maxDay-1; d++) {
+//                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
+//                        temp = temp -
+//                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
+//                    }
+//                }
+//            }
+//        }
+//        return temp;
+//    }
 
-    private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxEvenHoursScore) {
-        int temp = maxEvenHoursScore;
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay-1; d++) {
-                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
-                        temp = temp -
-                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
-                    }
-                }
-            }
-        }
-        return temp;
-    }
 
-    */
-/**
-     *  Calculates the score for the teachers that could teach the same subject.
-     * If a lesson can be taught only by 1 teacher it skips the calculation as it
-     * did not have other option.
-     *
-     *//*
-
+    /*
     private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,
                                                HashMap<Teacher,Integer> assignedTeachers) {
         int teachersEvenHours = 0;
@@ -265,6 +257,7 @@ public class Chromosome {
             }
         return teachersEvenHours;
     }
+    */
 
     private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
         if (teacher_A == teacher_B &&
@@ -275,34 +268,34 @@ public class Chromosome {
         return 0;
     }
 
-    private int compareAssignedTeachers (HashMap<Integer,Integer> assignedTeachersStrict,
-                                         HashMap<Integer,Integer> assignedTeachersInMoreThanTwo) {
-        int teacherA, teacherB;
-        int counterStrict, counterAll;
-        int [] assignedTeachersToCheck = new int [assignedTeachersInMoreThanTwo.size()];
-        int index = 0;
-        for (int teacherId: assignedTeachersInMoreThanTwo.keySet()) {
-            if (assignedTeachersStrict.containsKey(teacherId)) {
-                counterStrict = assignedTeachersStrict.get(teacherId);
-                counterAll = assignedTeachersInMoreThanTwo.get(teacherId);
-                assignedTeachersInMoreThanTwo.put(teacherId, counterStrict+counterAll);
-            }
-            assignedTeachersToCheck [index++] =
-                    assignedTeachersInMoreThanTwo.get(teacherId);
-        }
-        for (int i = 1; i < index ; i++) {
-            compareTeachersHours(index[])
-        }
-    }
-
-    private int compareTeachersHours (int teacher_A, int teacher_B) {
-        if (teacher_A == teacher_B &&
-                teacher_B != -1) {
-            return -1;
-        }
-        return 0;
-    }
-    */
+//    private int compareAssignedTeachers (HashMap<Integer,Integer> assignedTeachersStrict,
+//                                         HashMap<Integer,Integer> assignedTeachersInMoreThanTwo) {
+//        int teacherA, teacherB;
+//        int counterStrict, counterAll;
+//        int [] assignedTeachersToCheck = new int [assignedTeachersInMoreThanTwo.size()];
+//        int index = 0;
+//        for (int teacherId: assignedTeachersInMoreThanTwo.keySet()) {
+//            if (assignedTeachersStrict.containsKey(teacherId)) {
+//                counterStrict = assignedTeachersStrict.get(teacherId);
+//                counterAll = assignedTeachersInMoreThanTwo.get(teacherId);
+//                assignedTeachersInMoreThanTwo.put(teacherId, counterStrict+counterAll);
+//            }
+//            assignedTeachersToCheck [index++] =
+//                    assignedTeachersInMoreThanTwo.get(teacherId);
+//        }
+//        for (int i = 1; i < index ; i++) {
+//            compareTeachersHours(index[])
+//        }
+//    }
+//
+//    private int compareTeachersHours (int teacher_A, int teacher_B) {
+//        if (teacher_A == teacher_B &&
+//                teacher_B != -1) {
+//            return -1;
+//        }
+//        return 0;
+//    }
+//    */
 
     public double fitness() { return 0.0; }
 

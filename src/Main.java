@@ -52,35 +52,37 @@ public class Main {
 
         Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
 
+        System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
 
-        //thelw na dw ti exei mesa h lista genes h opoia apoteleitai apo 3 listes (ta genes twn 3 taksewn)
-        System.out.println("\nLINKED LIST 'genes' \n");
+
+
+
 
         //genes.get(0) -> genesA
         //genes.get(1) -> genesB
         //genes.get(2) -> genesC
 
-        for (int i=0; i<genes.size(); i++) {
-            if (i==0) { //genesA
-                System.out.println("A' Gymnasiou");
-                for (int a=0; a<genesA.size(); a++){
-                    //me to genes.get(i) exw epileksei 1 apo tis 3 listes kai me to .get(a) paw mesa sthn lista a
-                    System.out.println(genes.get(i).get(a).getLesson().getTitle() + " " + genes.get(i).get(a).getLesson().getClassGrade() + "' - " + genes.get(i).get(a).getTeacher().getName());
-                }
-            }
-            else if (i==1) { //genesB
-                System.out.println("\nB' Gymnasiou");
-                for (int b=0; b<genesB.size(); b++){
-                    System.out.println(genes.get(i).get(b).getLesson().getTitle() + " " + genes.get(i).get(b).getLesson().getClassGrade() + "' - " + genes.get(i).get(b).getTeacher().getName());
-                }
-            }
-            else { //genesC
-                System.out.println("\nC' Gymnasiou");
-                for (int c=0; c<genesC.size(); c++){
-                    System.out.println(genes.get(i).get(c).getLesson().getTitle() + " " + genes.get(i).get(c).getLesson().getClassGrade() + "' - " + genes.get(i).get(c).getTeacher().getName());
-                }
-            }
-        }
+//        for (int i=0; i<genes.size(); i++) {
+//            if (i==0) { //genesA
+//                System.out.println("A' Gymnasiou");
+//                for (int a=0; a<genesA.size(); a++){
+//                    //me to genes.get(i) exw epileksei 1 apo tis 3 listes kai me to .get(a) paw mesa sthn lista a
+//                    System.out.println(genes.get(i).get(a).getLesson().getTitle() + " " + genes.get(i).get(a).getLesson().getClassGrade() + "' - " + genes.get(i).get(a).getTeacher().getName());
+//                }
+//            }
+//            else if (i==1) { //genesB
+//                System.out.println("\nB' Gymnasiou");
+//                for (int b=0; b<genesB.size(); b++){
+//                    System.out.println(genes.get(i).get(b).getLesson().getTitle() + " " + genes.get(i).get(b).getLesson().getClassGrade() + "' - " + genes.get(i).get(b).getTeacher().getName());
+//                }
+//            }
+//            else { //genesC
+//                System.out.println("\nC' Gymnasiou");
+//                for (int c=0; c<genesC.size(); c++){
+//                    System.out.println(genes.get(i).get(c).getLesson().getTitle() + " " + genes.get(i).get(c).getLesson().getClassGrade() + "' - " + genes.get(i).get(c).getTeacher().getName());
+//                }
+//            }
+//        }
 
         //random values for testing
         //Chromosome solution = genetic.start(100, 0.1, 1, 1000);

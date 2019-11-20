@@ -76,7 +76,7 @@ public class Gene {
         Gene g = new Gene(l,t);
 
         for (int i = 0; i < nullGenes; i++) {
-        genes.add(g);
+            genes.add(g);
         }
         return genes;
     }

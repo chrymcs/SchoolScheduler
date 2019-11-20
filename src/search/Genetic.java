@@ -78,15 +78,17 @@ public class Genetic {
         Random r = new Random();
         int intersectionPointClass = r.nextInt(2);
         int intersectionPointSubClass = r.nextInt(2);
-        int intersectionPointDay= r.nextInt(6);
-        int intersectionPointHour = r.nextInt(4);
-        Gene [][][][] childGenes = new Gene [3][3][7][5];
+        int intersectionPointDay= r.nextInt(4);
+        int intersectionPointHour = r.nextInt(6);
+        Gene [][][][] childChromosomeA = new Gene [3][3][7][5];
+        Gene [][][][] childChromosomeB = new Gene [3][3][7][5];
         //The child has the left side of the x chromosome up to the intersection point...
         for (int c=0; c < intersectionPointClass; c++) {
             for (int s = 0; s < intersectionPointSubClass; s++) {
                 for (int d = 0; d < intersectionPointDay; d++) {
                     for (int h = 0; h < intersectionPointHour; h++) {
-                        childGenes[c][s][d][h] = x.getGenes()[c][s][d][h];
+                        childChromosomeA[c][s][d][h] = x.getGenes()[c][s][d][h];
+                        childChromosomeB[c][s][d][h] = y.getGenes()[c][s][d][h];
                     }
                 }
             }
@@ -96,12 +98,13 @@ public class Genetic {
             for (int s = intersectionPointSubClass; s < 3; s++) {
                 for (int d = intersectionPointDay; d < 5; d++) {
                     for (int h = intersectionPointHour; h < 7; h++) {
-                        childGenes[c][s][d][h] = y.getGenes()[c][s][d][h];
+                        childChromosomeA[c][s][d][h] = y.getGenes()[c][s][d][h];
+                        childChromosomeB[c][s][d][h] = x.getGenes()[c][s][d][h];
                     }
                 }
             }
         }
-        return new Chromosome(childGenes);
+        return new Chromosome(childChromosomeA);
     }
 
     public ArrayList<Chromosome> getPopulation() {
