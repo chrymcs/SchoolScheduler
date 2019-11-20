@@ -50,9 +50,14 @@ public class Main {
         //genetic.teachersList();
         genetic.initializePopulation(100);
 
-        Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
+        //Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
 
+
+        /**
+         * Trying calculateTeachersScore() method
+         */
         Chromosome ch = new Chromosome(genes,teachers,lessons);
+        Exporter.createExcelOutput(ch.toString());
         ch.calculateTeachersScore();
        // System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
 
