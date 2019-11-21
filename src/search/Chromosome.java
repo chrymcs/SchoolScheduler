@@ -122,9 +122,11 @@ public class Chromosome {
      * @return
      */
     private int calculateSubClassesScore () {
-        int gapsCounter;
-        int gapsScore = 0; //total gap hours
-        int teachingHoursCounter; //total teaching hours
+        int gapsCounter = 0;
+        float gapsScore; //total gap hours
+        int teachingHoursCounter = 0; //total teaching hours
+        int totalDaysWithLessons = 0;
+        int totalTeachingHoursCounter = 0;
         boolean endOfDayFound;
         int maxEvenHoursScore = 42 * (3);
         int evenHoursScore;
@@ -134,8 +136,6 @@ public class Chromosome {
                 for (int d = 0; d < maxDay; d++) {
                     //int hoursCounter = 0;
                     endOfDayFound = false;
-                    teachingHoursCounter = 0;
-                    gapsCounter = 0;
                     for (int h = maxHour-1; h >= 0; h--) {
                         if (chromosome[c][s][d][h].getLesson().getId() > 0) { //px kostas math
                             //hoursCounter++;
@@ -146,21 +146,16 @@ public class Chromosome {
                             teachingHoursCounter++;
                         }
                     }
-                    if (teachingHoursCounter > 0) {
-                        gapsScore =
-                                gapsScore + (teachingHoursCounter - gapsCounter)/teachingHoursCounter * 100;
-
-                    }
                 }
             }
                     //subClassesHours[c][s][d] = hoursCounter;
         }
-
-        gapsScore = gapsScore / (9 * 5);
+        gapsScore = (float) (teachingHoursCounter - gapsCounter)/teachingHoursCounter;
+        gapsScore = Math.round(gapsScore * 100);
         //evenHoursScore = Math.round ((float) (calcSubClassesEvenHours(subClassesHours,
                                                      //                           maxEvenHoursScore)
                                                    //     / maxEvenHoursScore) * 100);
-        return gapsScore; //+ evenHoursScore;
+        return (int) gapsScore; //+ evenHoursScore;
     }
 
 
