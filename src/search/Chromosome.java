@@ -159,34 +159,53 @@ public class Chromosome {
     }
 
 
-    private int calculateTeachersScore() {
+    public int calculateTeachersScore() {
         int consecutiveHoursScore = 0;
         int evenHoursScore = 0;
-        int teacherId, lessonId;
 
         int firstTeacher, middleTeacher, lastTeacher;
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 2; h < maxHour ; h++) { //starts from the 3rd hour on
-                        if (chromosome[c][s][d][h].getLesson().getId() > 0) {
-                            lastTeacher = chromosome[c][s][d][h].getTeacher().getId();
-                        } else lastTeacher = -1;
-                        if (chromosome[c][s][d][h-1].getLesson().getId() > 0) {
-                            middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
-                        } else middleTeacher = -1;
-                        if (chromosome[c][s][d][h-2].getLesson().getId() > 0) {
-                            firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
-                        } else firstTeacher = -1;
-                        //consecutiveHoursScore = consecutiveHoursScore
-                                //+ compareTeachersId (firstTeacher, middleTeacher, lastTeacher);
+                         lastTeacher = chromosome[c][s][d][h].getTeacher().getId();
+                         middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
+                         firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
+
+                        if (compareTeachersId (firstTeacher, middleTeacher, lastTeacher) == -1) {
+                            System.out.println(chromosome[c][s][d][h].getTeacher().getName());
+                            System.out.println(chromosome[c][s][d][h-1].getTeacher().getName());
+                            System.out.println(chromosome[c][s][d][h-2].getTeacher().getName());
+
+                            System.out.println("same teacher more than 2 hours");
+                            System.out.println("Found in class: " + c + " , Subclass: " + s + " and Day: " + d + ". Teacher Name: " + chromosome[c][s][d][h - 2].getTeacher().getName());
+                            consecutiveHoursScore = consecutiveHoursScore + 1;
+                        }
                     }
                 }
             }
         }
         //evenHoursScore = calcTeachersEvenHoursPerLesson(assignedLessons, assignedTeachers);
-        return consecutiveHoursScore + evenHoursScore;
+        return consecutiveHoursScore;
     }
+
+    private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
+        if (teacher_A != -1 && teacher_B != -1 && teacher_C != -1) {
+            if (teacher_A == teacher_B && teacher_B == teacher_C) {
+                return -1;
+            }
+        }
+            return 0;
+    }
+
+/*
+    private int compareTeachersHours (int teacher_A, int teacher_B) {
+        if (teacher_A == teacher_B && teacher_B != -1) {
+            return -1;
+        }
+        return 0;
+    }
+*/
 
 //    private int calculateLessonsScore() {
 //        return 0;
@@ -231,8 +250,7 @@ public class Chromosome {
 //    }
 
 
-    /*
-    private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,
+/*    private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,
                                                HashMap<Teacher,Integer> assignedTeachers) {
         int teachersEvenHours = 0;
         int teacherAHours = -1;
@@ -251,18 +269,11 @@ public class Chromosome {
                 teachersEvenHours =+ compareTeachersHours(teacherAHours,teacherBHours);
             }
         return teachersEvenHours;
-    }
-    */
+    }*/
 
-    private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
-        if (teacher_A == teacher_B &&
-                teacher_B == teacher_C &&
-                    teacher_C != -1) {
-            return -1;
-        }
-        return 0;
-    }
 
+
+/*
 //    private int compareAssignedTeachers (HashMap<Integer,Integer> assignedTeachersStrict,
 //                                         HashMap<Integer,Integer> assignedTeachersInMoreThanTwo) {
 //        int teacherA, teacherB;
@@ -282,15 +293,10 @@ public class Chromosome {
 //            compareTeachersHours(index[])
 //        }
 //    }
-//
-//    private int compareTeachersHours (int teacher_A, int teacher_B) {
-//        if (teacher_A == teacher_B &&
-//                teacher_B != -1) {
-//            return -1;
-//        }
-//        return 0;
-//    }
-//    */
+//*/
+
+
+
 
     public double fitness() { return 0.0; }
 

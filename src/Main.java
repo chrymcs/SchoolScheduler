@@ -50,12 +50,31 @@ public class Main {
         //genetic.teachersList();
         genetic.initializePopulation(100);
 
-        Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-
-        System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
+        //Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
 
 
+        /**
+         * Trying calculateTeachersScore() method. Run it! xoxoxo
+         * P.S. doesn't work with : " Exporter.createExcelOutput(genetic.getPopulation().get(0).toString()); " above.
+         * Στην αρχή εξήγαγα excel αρχείο με την εντολή : Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
+         * και καλούσα την calculateTeachersScore() φτιάχνοντας ένα χρωμόσωμα. Οπότε μου έβγαζε στην κονσόλα διαφορετικά αποτελέσματα από αυτά που έβλεπα στο excel.
+         * Μετά κατάλαβα ότι έφτιαχνα excel δίνοντας σαν όρισμα στην createExcelOutput() το : genetic.getPopulation().get(0).toString() , ενώ έπρεπε να δώσω το χρωμόσωμα που εξέταζα (ch).
+         * Στη main μας λοιπόν, πως θα πρέπει να παράγουμε excel ;
+         *
+         * Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
+         * ή
+         * Chromosome ch = new Chromosome(genes,teachers,lessons);
+         * Exporter.createExcelOutput(ch.toString());
+         *
+         * Με τον πάνω τρόπο δεν μπορώ να καλέσω την calculateTeachersScore.
+         */
+        Chromosome ch = new Chromosome(genes,teachers,lessons);
+        Exporter.createExcelOutput(ch.toString());
+        ch.calculateTeachersScore();
 
+
+
+       // System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
 
 
         //genes.get(0) -> genesA
