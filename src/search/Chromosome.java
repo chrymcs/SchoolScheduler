@@ -50,11 +50,12 @@ public class Chromosome {
         int upperRandomLimit;
 
         //A list that will hold 5 hashmaps of teachers and their daily hours
-        //LinkedList<HashMap<Teacher, Integer>> teachersDayHoursAllClasses =
-                //new LinkedList<HashMap<Teacher, Integer>>();
-        //for (int i = 0; i < 5; i++) {
-           // teachersDayHoursAllClasses.add(new HashMap<>());
-        //}
+        LinkedList<HashMap<Teacher, Integer>> teachersDayHours = new LinkedList<>();
+        for (int i = 0; i < 5; i++) {
+            teachersDayHours.add(new HashMap<>());
+        }
+
+        int teacher1DayHours;
 
         for (int c = 0; c < maxClasses; c++) {
             upperRandomLimit = genesList.get(c).size();
@@ -66,20 +67,25 @@ public class Chromosome {
                         this.chromosome[c][s][d][h] = gene;
 
                         //decreasing week hours of each teacher when assigned
-                        //Teacher teacher = gene.getTeacher();
-                        //int teachersWeekHours = allTeachers.get(teacher.getId()).getWeekHours();
-                        //allTeachers.get(teacher.getId()).setWeekHours(teachersWeekHours - 1);
+                        Teacher teacher = gene.getTeacher();
+                        int teachersWeekHours = teacherHashMap.get(teacher.getId()).getWeekHours();
+                        teacherHashMap.get(teacher.getId()).setWeekHours(teachersWeekHours - 1);
 
-                        //keeping for each teacher that occurs the number of hours that teached
+                        //keeping for each teacher that occurs the number of hours that taught
                         // in that day in 1 subclass
-                        //int currentHoursValue = teachersDayHours1Class.getOrDefault(teacher, 0);
-                        //teachersDayHours1Class.put(teacher, currentHoursValue + 1);
+                        //int temp = teachersDayHours.get(d).getOrDefault(teacher, 0);
+                        //teachersDayHours1Class.put(teacher, teacherDayHours + 1);
 
-//                        assignedTeachers = updateAssignedTeachers(assignedTeachers,
-//                                gene.getTeacher());
-//                        assignedLessons = updateAssignedLessons(assignedLessons,
-//                                gene.getLesson());
+                        //In each assignment og lesson-teacher combination the program keeps a
+                        //record of the assigned teachers and lessons in order to be handled
+                        //later on and during constraint #5
+                        // TODO: may change comment
+                        assignedLessons = updateAssignedLessons(assignedLessons,
+                                gene.getLesson());
+                        assignedTeachers = updateAssignedTeachers(assignedTeachers,
+                                gene.getTeacher());
                     }
+
                     //at the end of that day we sum up all hours for each teacher
                     //for (Teacher teacher : teachersDayHours1Class.keySet()) {
                      //   teachersDayHoursAllClasses.get(d).put(teacher,
@@ -103,7 +109,6 @@ public class Chromosome {
 //            int dayHoursBeforeGenes = allTeachers.get(teacherId).getDayHours();
 //            allTeachers.get(teacherId).setDayHours(dayHoursBeforeGenes - maxDayHours);
 //        }
-
         calculateFitness();
     }
 
@@ -111,7 +116,10 @@ public class Chromosome {
     private void calculateFitness() {
         int subClassesScore = calculateGapsScore();
         int unevenHoursScore = calculateUnevenHoursScore();
-        int consecutiveTeachersScore =
+        int consecutiveTeachersScore = calculateConsecutiveTeachersScore();
+        int teachersEvenHours = calculateTeachersEvenHours(assignedTeachers, allTeachers);
+
+
         //int teachersScore = calculateTeachersScore();
         //int lessonsScore = calculateLessonsScore();
         fitness = subClassesScore;
@@ -225,6 +233,7 @@ public class Chromosome {
         return evenHoursScore;
     }
 
+    //Secondary method for Constraint #2
     private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
         float temp;
         int evenHoursScore = 0;
@@ -246,92 +255,52 @@ public class Chromosome {
     }
 
 
-/*
-    private int compareTeachersHours (int teacher_A, int teacher_B) {
-        if (teacher_A == teacher_B && teacher_B != -1) {
-            return -1;
+    //Constraint #5
+    private int calculateTeachersEvenHours (HashMap<Teacher,Integer> assignedTeachers,
+                                           HashMap<Integer,Teacher> allTeachers) {
+        Teacher teacherA;
+        Teacher teacherB;
+        float difference = 0;
+        LinkedList<Integer> checkedIds = new LinkedList<>();
+        for (int teacherIdA : allTeachers.keySet()) {
+            checkedIds.add(teacherIdA);
+            for (int teacherIdB : allTeachers.keySet()) {
+                if (teacherIdA != teacherIdB && !checkedIds.contains(teacherIdB)) {
+                    teacherA = allTeachers.get(teacherIdA);
+                    teacherB = allTeachers.get(teacherIdB);
+                    difference = difference +
+                            Math.abs(assignedTeachers.getOrDefault(teacherA,0)
+                                    - assignedTeachers.getOrDefault(teacherB,0));
+                }
+            }
         }
-        return 0;
+        //TODO: check formula
+        difference = difference / 100;
+        return Math.round(100-difference);
     }
-*/
 
+    private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
+                                                           Lesson lesson) {
+        if (!assignedLessons.containsKey(lesson)) {
+            assignedLessons.put(lesson,1);
+        } else {
+            assignedLessons.put(lesson, assignedLessons.get(lesson) + 1);
+        }
+        return assignedLessons;
+    }
 
-
-//    private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
-//                                                           Lesson lesson) {
-//        if (!assignedLessons.containsKey(lesson)) {
-//            assignedLessons.put(lesson,1);
-//        } else {
-//            assignedLessons.put(lesson, assignedLessons.get(lesson) + 1);
-//        }
-//        return assignedLessons;
-//    }
-//
-//    private HashMap<Teacher,Integer> updateAssignedTeachers (HashMap<Teacher,Integer> assignedTeachers,
-//                                                           Teacher teacher) {
-//        if (!assignedTeachers.containsKey(teacher)) {
-//            assignedTeachers.put(teacher,1);
-//        } else {
-//            assignedTeachers.put(teacher, assignedTeachers.get(teacher) + 1);
-//        }
-//        return assignedTeachers;
-//    }
-
-
-
-
-
-
-
-/*    private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,
-                                               HashMap<Teacher,Integer> assignedTeachers) {
-        int teachersEvenHours = 0;
-        int teacherAHours = -1;
-        int teacherBHours = -1;
-        int teacherId;
-        for (Lesson al : assignedLessons.keySet()) {
-            if (al.getAvailableTeachers().size() == 1) {
-
+    private HashMap<Teacher,Integer> updateAssignedTeachers (HashMap<Teacher,Integer> assignedTeachers,
+                                                           Teacher teacher) {
+        if (teacher.getId()>0) {
+            if (!assignedTeachers.containsKey(teacher)) {
+                assignedTeachers.put(teacher,1);
             } else {
-                for (teacherId:
-                     al.getAvailableTeachers()) {
-                    assignedTeacherMoreThatTwo = updateAssignedTeachers(assignedTeacherMoreThatTwo,
-                        teacherId);
+                assignedTeachers.put(teacher, assignedTeachers.get(teacher) + 1);
             }
-            }
-                teachersEvenHours =+ compareTeachersHours(teacherAHours,teacherBHours);
-            }
-        return teachersEvenHours;
-    }*/
+        }
+        return assignedTeachers;
+    }
 
-
-
-/*
-//    private int compareAssignedTeachers (HashMap<Integer,Integer> assignedTeachersStrict,
-//                                         HashMap<Integer,Integer> assignedTeachersInMoreThanTwo) {
-//        int teacherA, teacherB;
-//        int counterStrict, counterAll;
-//        int [] assignedTeachersToCheck = new int [assignedTeachersInMoreThanTwo.size()];
-//        int index = 0;
-//        for (int teacherId: assignedTeachersInMoreThanTwo.keySet()) {
-//            if (assignedTeachersStrict.containsKey(teacherId)) {
-//                counterStrict = assignedTeachersStrict.get(teacherId);
-//                counterAll = assignedTeachersInMoreThanTwo.get(teacherId);
-//                assignedTeachersInMoreThanTwo.put(teacherId, counterStrict+counterAll);
-//            }
-//            assignedTeachersToCheck [index++] =
-//                    assignedTeachersInMoreThanTwo.get(teacherId);
-//        }
-//        for (int i = 1; i < index ; i++) {
-//            compareTeachersHours(index[])
-//        }
-//    }
-//*/
-
-
-
-
-    public double fitness() { return 0.0; }
 
     //public Chromosome mutate() { return new Chromosome(); }
 
@@ -339,6 +308,7 @@ public class Chromosome {
         return this.chromosome;
     }
 
+    //TODO: is needed?
     public void setChromosome (Gene[][][][] genesList) {
         this.chromosome = genesList;
     }
