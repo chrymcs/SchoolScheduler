@@ -109,19 +109,16 @@ public class Chromosome {
 
 
     private void calculateFitness() {
-        int subClassesScore = calculateSubClassesScore();
+        int subClassesScore = calculateGapsScore();
+        int unevenHoursScore = calculateUnevenHoursScore();
+        int consecutiveTeachersScore =
         //int teachersScore = calculateTeachersScore();
         //int lessonsScore = calculateLessonsScore();
         fitness = subClassesScore;
     }
 
-
-
-    /**
-     *
-     * @return
-     */
-    private int calculateSubClassesScore () {
+    //Constraint #1
+    private int calculateGapsScore() {
         int gapsCounter = 0;
         float gapsScore; //total gap hours
         int teachingHoursCounter = 0; //total teaching hours
@@ -158,45 +155,96 @@ public class Chromosome {
         return (int) gapsScore; //+ evenHoursScore;
     }
 
+    //Constraint #2
+    public int calculateConsecutiveTeachersScore() {
+        int consecutiveHours = 0;
+        int consecutiveScore = 100;
 
-    public int calculateTeachersScore() {
-        int consecutiveHoursScore = 0;
         int evenHoursScore = 0;
-
         int firstTeacher, middleTeacher, lastTeacher;
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 2; h < maxHour ; h++) { //starts from the 3rd hour on
-                         lastTeacher = chromosome[c][s][d][h].getTeacher().getId();
-                         middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
-                         firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
+                        lastTeacher = chromosome[c][s][d][h].getTeacher().getId();
+                        middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
+                        firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
 
-                        if (compareTeachersId (firstTeacher, middleTeacher, lastTeacher) == -1) {
-                            System.out.println(chromosome[c][s][d][h].getTeacher().getName());
-                            System.out.println(chromosome[c][s][d][h-1].getTeacher().getName());
-                            System.out.println(chromosome[c][s][d][h-2].getTeacher().getName());
+                        System.out.println("same teacher more than 2 hours");
+                        System.out.println("Found in class: " + c + " , Subclass: " + s +
+                                " and Day: " + d + ". Teacher Name: " +
+                                chromosome[c][s][d][h - 2].getTeacher().getName());
 
-                            System.out.println("same teacher more than 2 hours");
-                            System.out.println("Found in class: " + c + " , Subclass: " + s + " and Day: " + d + ". Teacher Name: " + chromosome[c][s][d][h - 2].getTeacher().getName());
-                            consecutiveHoursScore = consecutiveHoursScore + 1;
-                        }
+                        consecutiveHours = consecutiveHours +
+                                compareTeachersId (firstTeacher, middleTeacher, lastTeacher);
                     }
                 }
             }
         }
+        //In case too many teachers have 3 consecutive hours of teaching then the program maxes
+        // the consecutive hours to 100, so this category's fitness is 0.
+        if (consecutiveHours > 100) consecutiveHours = 100;
+        consecutiveScore = consecutiveScore - consecutiveHours;
+
         //evenHoursScore = calcTeachersEvenHoursPerLesson(assignedLessons, assignedTeachers);
-        return consecutiveHoursScore;
+        return consecutiveScore;
     }
 
+    //Secondary method for Constraint #2
     private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
-        if (teacher_A != -1 && teacher_B != -1 && teacher_C != -1) {
-            if (teacher_A == teacher_B && teacher_B == teacher_C) {
-                return -1;
+        if (teacher_A == teacher_B && teacher_B == teacher_C && teacher_C != -1)  {
+            return 1;
+        }
+        return 0;
+    }
+
+    //Constraint #3
+    private int calculateUnevenHoursScore() {
+        //total teaching hours
+        int teachingHoursPerDay;
+
+        //Worst case scenario
+        int maxEvenHoursScore = 42 * 9;
+        int evenHoursScore;
+        int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    teachingHoursPerDay = 0;
+                    for (int h = 0; h < maxHour; h++) {
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) {
+                            teachingHoursPerDay++;
+                        }
+                    }
+                subClassesHours[c][s][d] = teachingHoursPerDay;
+                }
             }
         }
-            return 0;
+
+        evenHoursScore = calcSubClassesEvenHours(subClassesHours,maxEvenHoursScore);
+        return evenHoursScore;
     }
+
+    private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
+        float temp;
+        int evenHoursScore = 0;
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay - 1; d++) {
+                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
+                        evenHoursScore = evenHoursScore +
+                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
+                    }
+                }
+            }
+        }
+        //TODO: ksereis
+        temp = (float) (maxScore - evenHoursScore) / maxScore;
+        temp = Math.round(temp * 100);
+        return (int) temp;
+    }
+
 
 /*
     private int compareTeachersHours (int teacher_A, int teacher_B) {
@@ -207,10 +255,8 @@ public class Chromosome {
     }
 */
 
-//    private int calculateLessonsScore() {
-//        return 0;
-//    }
-//
+
+
 //    private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
 //                                                           Lesson lesson) {
 //        if (!assignedLessons.containsKey(lesson)) {
@@ -234,20 +280,7 @@ public class Chromosome {
 
 
 
-//    private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxEvenHoursScore) {
-//        int temp = maxEvenHoursScore;
-//        for (int c = 0; c < maxClasses; c++) {
-//            for (int s = 0; s < maxSubClasses; s++) {
-//                for (int d = 0; d < maxDay-1; d++) {
-//                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
-//                        temp = temp -
-//                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
-//                    }
-//                }
-//            }
-//        }
-//        return temp;
-//    }
+
 
 
 /*    private int calcTeachersEvenHoursPerLesson(HashMap<Lesson,Integer> assignedLessons,

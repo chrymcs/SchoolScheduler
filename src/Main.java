@@ -7,9 +7,7 @@ import search.Chromosome;
 import search.Gene;
 import search.Genetic;
 //import search.Chromosome;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Main {
@@ -50,7 +48,7 @@ public class Main {
         //genetic.teachersList();
         genetic.initializePopulation(100);
 
-        //Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
+        Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
 
 
         /**
@@ -70,7 +68,7 @@ public class Main {
          */
         Chromosome ch = new Chromosome(genes,teachers,lessons);
         Exporter.createExcelOutput(ch.toString());
-        ch.calculateTeachersScore();
+        ch.calculateConsecutiveTeachersScore();
 
 
 
