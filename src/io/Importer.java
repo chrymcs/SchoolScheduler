@@ -25,7 +25,7 @@ public class Importer {
 
         // Lessons
         while ((str = br.readLine()) != null) { //loop for each line in text.
-            Lesson lesson = new Lesson(); // courseCode - title - class - hours
+            Lesson lesson = new Lesson(); // id - title - classGrade - hoursPerWeek
             String[] line = str.split("\\s+");
 
             lesson.setId(Integer.parseInt(line[0]));

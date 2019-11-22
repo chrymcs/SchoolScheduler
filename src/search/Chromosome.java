@@ -12,7 +12,6 @@ import java.util.*;
  */
 public class Chromosome {
 
-
     private Gene[][][][] chromosome; // hoursPerDay - daysPerWeek - subClassesPerSchedule
     private int maxClasses = 3, maxDay = 5, maxHour = 7, maxSubClasses = 3;
     private int fitness;
@@ -21,6 +20,7 @@ public class Chromosome {
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
     private HashMap<Lesson,Integer> assignedLessons = new HashMap<>();
 
+/** CONSTRUCTORS */
     public Chromosome (Gene[][][][] childChromosome) {
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
@@ -108,7 +108,32 @@ public class Chromosome {
        calculateFitness();
     }
 
+/** ------------------------------------------------------------------------------------------------------------------------------------------------ */
 
+/** SETTERS - GETTERS */
+
+    public Gene[][][][] getGenes () {
+        return this.chromosome;
+    }
+
+    //TODO: is needed?
+    public void setChromosome (Gene[][][][] genesList) {
+        this.chromosome = genesList;
+    }
+
+    public int getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
+    }
+
+/** ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+/** CALCULATE FITNESS METHODS */
+
+    //calculates total fitness
     private void calculateFitness() {
         //int subClassesScore = calculateGapsScore();
         //int unevenHoursScore = calculateUnevenHoursScore();
@@ -163,6 +188,8 @@ public class Chromosome {
         return (int) gapsScore; //+ evenHoursScore;
     }
 
+
+
     //Constraint #2
     public int calculateConsecutiveTeachersScore() {
         int consecutiveHours = 0;
@@ -206,6 +233,8 @@ public class Chromosome {
         }
         return 0;
     }
+
+
 
     //Constraint #3 //TODO
     private int calculateUnevenHoursScore() {
@@ -254,7 +283,6 @@ public class Chromosome {
         temp = Math.round(temp * 100);
         return (int) temp;
     }
-
 
 
 
@@ -385,24 +413,10 @@ public class Chromosome {
     }
 
 
+/** ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+
     //public Chromosome mutate() { return new Chromosome(); }
-
-    public Gene[][][][] getGenes () {
-        return this.chromosome;
-    }
-
-    //TODO: is needed?
-    public void setChromosome (Gene[][][][] genesList) {
-        this.chromosome = genesList;
-    }
-
-    public int getFitness() {
-        return fitness;
-    }
-
-    public void setFitness(int fitness) {
-        this.fitness = fitness;
-    }
 
     @Override
     public String toString() {

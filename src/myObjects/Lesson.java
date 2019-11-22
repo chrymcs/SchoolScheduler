@@ -6,12 +6,10 @@ public class Lesson {
 
     private int id;
     private String title;
-    private String classGrade; //taksi A,B,G
+    private String classGrade; //A, B, C
     private int weekHours;
-    //poioi kathigites mporoun na didaksoun to mathima
-    //dineis kathigiti kai ton petaei sti lista
+    //which professors can teach the lesson
     private LinkedList<Teacher> availableTeachers = new LinkedList<>();
-
 
     public Lesson() {    }
 
@@ -21,7 +19,6 @@ public class Lesson {
         this.classGrade = classGrade;
         this.weekHours = weekHours;
     }
-
 
 // Setters - Getters
 
