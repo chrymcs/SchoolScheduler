@@ -1,12 +1,9 @@
-//import search.Gene;
 import io.Exporter;
 import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
-import search.Chromosome;
 import search.Gene;
 import search.Genetic;
-//import search.Chromosome;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -18,18 +15,18 @@ public class Main {
         HashMap<Integer ,Lesson> lessons = null;
         HashMap<Integer ,Teacher> teachers = null;
 
-        LinkedList<Gene> genesA = new LinkedList<>(); //gonidia A gymnasiou
-        LinkedList<Gene> genesB = new LinkedList<>(); //gonidia B gymnasiou
-        LinkedList<Gene> genesC = new LinkedList<>(); //gonidia C gymnasiou
+        LinkedList<Gene> genesA = new LinkedList<>(); //all genes of A' class
+        LinkedList<Gene> genesB = new LinkedList<>(); //all genes of B' class
+        LinkedList<Gene> genesC = new LinkedList<>(); //all genes of C' class
 
         LinkedList<LinkedList<Gene>> genes = new LinkedList<>();
 
         try {
-            lessons = importer.createLessonsMap(args[0]);
-            teachers = importer.createTeachersMap(args[1]);
+            lessons = importer.readLessonsFile(args[0]);
+            teachers = importer.readTeachersFile(args[1]);
         } catch (Exception e) {
             System.err.println("No proper arguments given.");
-            System.err.println("The arguments should be lessons.txt teachers.txt");
+            System.err.println("The arguments should be: \" ./data/lessons.txt ./data/teachers.txt \"");
         }
         int nullGenes = 5;
         if (lessons!=null && teachers!=null) {
@@ -38,68 +35,19 @@ public class Main {
             genesC = Gene.combinationsPerClass(lessons, teachers, "C", nullGenes);
         }
 
-        //vale ola ta gonidia se mia lista.
+        //put all genes in one list
         genes.add(genesA);
         genes.add(genesB);
         genes.add(genesC);
 
+
         Genetic genetic = new Genetic(lessons, teachers, genes);
-        //genetic.lessonsList();
-        //genetic.teachersList();
-        genetic.initializePopulation(100);
+
+        genetic.initializePopulation(5);
 
         Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
+        genetic.getPopulation().get(0).calculateUnevenDistributedHoursPerLesson();
 
-
-        /**
-         * Trying calculateTeachersScore() method. Run it! xoxoxo
-         * P.S. doesn't work with : " Exporter.createExcelOutput(genetic.getPopulation().get(0).toString()); " above.
-         * Στην αρχή εξήγαγα excel αρχείο με την εντολή : Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-         * και καλούσα την calculateTeachersScore() φτιάχνοντας ένα χρωμόσωμα. Οπότε μου έβγαζε στην κονσόλα διαφορετικά αποτελέσματα από αυτά που έβλεπα στο excel.
-         * Μετά κατάλαβα ότι έφτιαχνα excel δίνοντας σαν όρισμα στην createExcelOutput() το : genetic.getPopulation().get(0).toString() , ενώ έπρεπε να δώσω το χρωμόσωμα που εξέταζα (ch).
-         * Στη main μας λοιπόν, πως θα πρέπει να παράγουμε excel ;
-         *
-         * Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-         * ή
-         * Chromosome ch = new Chromosome(genes,teachers,lessons);
-         * Exporter.createExcelOutput(ch.toString());
-         *
-         * Με τον πάνω τρόπο δεν μπορώ να καλέσω την calculateTeachersScore.
-         */
-        Chromosome ch = new Chromosome(genes,teachers,lessons);
-        Exporter.createExcelOutput(ch.toString());
-        ch.calculateConsecutiveTeachersScore();
-
-
-
-       // System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
-
-
-        //genes.get(0) -> genesA
-        //genes.get(1) -> genesB
-        //genes.get(2) -> genesC
-
-//        for (int i=0; i<genes.size(); i++) {
-//            if (i==0) { //genesA
-//                System.out.println("A' Gymnasiou");
-//                for (int a=0; a<genesA.size(); a++){
-//                    //me to genes.get(i) exw epileksei 1 apo tis 3 listes kai me to .get(a) paw mesa sthn lista a
-//                    System.out.println(genes.get(i).get(a).getLesson().getTitle() + " " + genes.get(i).get(a).getLesson().getClassGrade() + "' - " + genes.get(i).get(a).getTeacher().getName());
-//                }
-//            }
-//            else if (i==1) { //genesB
-//                System.out.println("\nB' Gymnasiou");
-//                for (int b=0; b<genesB.size(); b++){
-//                    System.out.println(genes.get(i).get(b).getLesson().getTitle() + " " + genes.get(i).get(b).getLesson().getClassGrade() + "' - " + genes.get(i).get(b).getTeacher().getName());
-//                }
-//            }
-//            else { //genesC
-//                System.out.println("\nC' Gymnasiou");
-//                for (int c=0; c<genesC.size(); c++){
-//                    System.out.println(genes.get(i).get(c).getLesson().getTitle() + " " + genes.get(i).get(c).getLesson().getClassGrade() + "' - " + genes.get(i).get(c).getTeacher().getName());
-//                }
-//            }
-//        }
 
         //random values for testing
         //Chromosome solution = genetic.start(100, 0.1, 1, 1000);

@@ -12,7 +12,6 @@ import java.util.*;
  */
 public class Chromosome {
 
-
     private Gene[][][][] chromosome; // hoursPerDay - daysPerWeek - subClassesPerSchedule
     private int maxClasses = 3, maxDay = 5, maxHour = 7, maxSubClasses = 3;
     private int fitness, eligibleFitness;
@@ -23,6 +22,7 @@ public class Chromosome {
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
     private HashMap<Lesson,Integer> assignedLessons = new HashMap<>();
 
+/** CONSTRUCTORS */
     public Chromosome (Gene[][][][] childChromosome) {
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
@@ -58,8 +58,6 @@ public class Chromosome {
                         gene = genesList.get(c).get(r.nextInt(upperRandomLimit));
                         this.chromosome[c][s][d][h] = gene;
 
-
-
                         //In each assignment og lesson-teacher combination the program keeps a
                         //record of the assigned teachers and lessons in order to be handled
                         //later on and during constraint #5
@@ -69,33 +67,11 @@ public class Chromosome {
                         assignedTeachers = updateAssignedTeachers(assignedTeachers,
                                 gene.getTeacher());
                     }
-
-                    //at the end of that day we sum up all hours for each teacher
-                    //for (Teacher teacher : teachersDayHours1Class.keySet()) {
-                     //   teachersDayHoursAllClasses.get(d).put(teacher,
-                     //           teachersDayHours1Class.get(teacher));
-                    }
                 }
             }
-
-
-        //After the assignment of Genes all teachers (from hypothesis) are updated, regarding the
-        // day hours that they taught. Negative values indicate insufficiency in the schedule.
-//        for (int teacherId : allTeachers.keySet()) {
-//            int maxDayHours = 0;
-//            Teacher teacher = allTeachers.get(teacherId);
-//            for (int d = 0; d < 5; d++) {
-//                if (maxDayHours
-//                        < teachersDayHoursAllClasses.get(d).getOrDefault(teacher,0)) {
-//                    maxDayHours = teachersDayHoursAllClasses.get(d).get(teacher);
-//                }
-//            }
-//            int dayHoursBeforeGenes = allTeachers.get(teacherId).getDayHours();
-//            allTeachers.get(teacherId).setDayHours(dayHoursBeforeGenes - maxDayHours);
-//        }
+        }
         calculateFitness();
     }
-
 
 
     private void calculateFitness() {
@@ -115,12 +91,7 @@ public class Chromosome {
         int gapsCounter = 0;
         float gapsScore; //total gap hours
         int teachingHoursCounter = 0; //total teaching hours
-        int totalDaysWithLessons = 0;
-        int totalTeachingHoursCounter = 0;
         boolean endOfDayFound;
-        int maxEvenHoursScore = 42 * (3);
-        int evenHoursScore;
-        int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
@@ -138,14 +109,10 @@ public class Chromosome {
                     }
                 }
             }
-                    //subClassesHours[c][s][d] = hoursCounter;
         }
         gapsScore = (float) (teachingHoursCounter - gapsCounter)/teachingHoursCounter;
         gapsScore = Math.round(gapsScore * 100);
-        //evenHoursScore = Math.round ((float) (calcSubClassesEvenHours(subClassesHours,
-                                                     //                           maxEvenHoursScore)
-                                                   //     / maxEvenHoursScore) * 100);
-        return (int) gapsScore; //+ evenHoursScore;
+        return (int) gapsScore;
     }
 
     //Constraint #2
@@ -153,7 +120,6 @@ public class Chromosome {
         int consecutiveHours = 0;
         int consecutiveScore = 100;
 
-        int evenHoursScore = 0;
         int firstTeacher, middleTeacher, lastTeacher;
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
@@ -186,27 +152,6 @@ public class Chromosome {
         return 0;
     }
 
-    //Secondary method for Constraint #2
-    private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
-        float temp;
-        int evenHoursScore = 0;
-
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay - 1; d++) {
-                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
-                        evenHoursScore = evenHoursScore +
-                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
-                    }
-                }
-            }
-        }
-        //TODO: ksereis
-        temp = (float) (maxScore - evenHoursScore) / maxScore;
-        temp = Math.round(temp * 100);
-        return (int) temp;
-    }
-
     //Constraint #3
     private int calculateUnevenHoursScore() {
         //total teaching hours
@@ -234,6 +179,113 @@ public class Chromosome {
         return evenHoursScore;
     }
 
+    //Secondary method for Constraint #3
+    private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
+        float temp;
+        int evenHoursScore = 0;
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay - 1; d++) {
+                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
+                        evenHoursScore = evenHoursScore +
+                                Math.abs(subClassesHours[c][s][d] - subClassesHours[c][s][nextDay]);
+                    }
+                }
+            }
+        }
+        //TODO: ksereis
+        temp = (float) (maxScore - evenHoursScore) / maxScore;
+        temp = Math.round(temp * 100);
+        return (int) temp;
+    }
+
+    //Constraint #4 //TODO
+    public int calculateUnevenDistributedHoursPerLesson() {
+
+        Lesson currentLesson; //poio mathima eksetazw kathe fora
+
+        ArrayList<Lesson> lessonsPerWeek = new ArrayList<Lesson>(); //ola ta mathimata ths evdomadas (uparxei 1 fora to kathena edw)
+
+        ArrayList<Integer> lesshoursPerDay = new ArrayList<Integer>(); //pinakas pou krataei ola ta hoursperday enos mathimatos. diladi krataei 5 hoursPerDay, ena gia kathe mera.
+
+        int maxEvenHoursScore = 42; //Worst case scenario
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    for (int h = 0; h < maxHour; h++) {
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) { //an den einai null
+                            currentLesson = chromosome[c][s][d][h].getLesson();
+
+                            lesshoursPerDay = weekLessons(c, s, d, h, lessonsPerWeek, currentLesson); //gemizei ton lessonsPerWeek[] & epistrefei gia to sugekrimeno chromosome, mia arraylist me 5 theseis. kathe thesh antistoixei se 1 mera kai deixnei poses wres didasketai to mathima.
+                        }
+                    }
+                }
+                int evenHoursScore = calcLessonsEvenHours(lesshoursPerDay, maxEvenHoursScore);
+                //System.out.println(evenHoursScore);
+            }
+        }
+        return 0;
+    }
+
+    //Secondary method for Constraint #4
+    private int calcLessonsEvenHours (ArrayList<Integer> lesshoursPerDay, int maxScore) {
+        float temp;
+        int evenHoursScore = 0;
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay - 1; d++) {
+                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
+                        evenHoursScore = evenHoursScore +
+                                Math.abs(lesshoursPerDay.get(d) - lesshoursPerDay.get(nextDay));
+                    }
+                }
+            }
+        }
+        temp = (float) (maxScore - evenHoursScore) / maxScore;
+        temp = Math.round(temp * 100);
+        temp = Math.abs(temp);
+        return (int) temp;
+    }
+
+    // method for Constraint #4
+    private ArrayList<Integer> weekLessons (int c, int s, int d, int h, ArrayList<Lesson> lessonsPerWeek, Lesson currentLesson) {
+
+        int dayHours;
+        ArrayList<Integer> lesshoursPerDay = new ArrayList<Integer>(); //pinakas pou krataei ola ta hoursperday enos mathimatos. diladi krataei 5 hoursPerDay, ena gia kathe mera.
+
+        if (!lessonsPerWeek.contains(currentLesson)) { //an den yparxei, valto kai pigaine vres ta ola
+            lessonsPerWeek.add(currentLesson);
+            dayHours = 1;
+
+            if (h<maxHour-1) {
+                for (h = h + 1; h < maxHour; h++) {
+                    if (chromosome[c][s][d][h].getLesson() == currentLesson) {
+                        dayHours++;
+                    }
+                }
+            }
+
+            lesshoursPerDay.add(dayHours); //vale tis wres tou mathimatos tis 1hs hmeras ston pinaka
+
+            if (d<maxDay-1) {
+                for (d = d + 1; d < maxDay; d++) {
+                    dayHours = 0; //allazw mera ara midenise tes
+                    for (h = 0; h < maxHour; h++) {
+                        if (chromosome[c][s][d][h].getLesson() == currentLesson) {
+                            dayHours++;
+                        }
+                    }
+                    lesshoursPerDay.add(dayHours);
+                }
+            }
+        }
+        //an yparxei to  mathima mhn kaneis tipota giati ta exeis metrisei ola idi parapanw
+        return lesshoursPerDay;
+    }
+
     //Constraint #5
     private int calculateTeachersEvenHours (HashMap<Teacher,Integer> assignedTeachers,
                                            HashMap<Integer,Teacher> allTeachers) {
@@ -253,7 +305,6 @@ public class Chromosome {
                 }
             }
         }
-        //TODO: check formula
         difference = difference / 100;
         return Math.round(100-difference);
     }
@@ -329,10 +380,12 @@ public class Chromosome {
 
     private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
                                                            Lesson lesson) {
-        if (!assignedLessons.containsKey(lesson)) {
-            assignedLessons.put(lesson,1);
-        } else {
-            assignedLessons.put(lesson, assignedLessons.get(lesson) + 1);
+        if (lesson.getId()>0) {
+            if (!assignedLessons.containsKey(lesson)) {
+                assignedLessons.put(lesson, 1);
+            } else {
+                assignedLessons.put(lesson, assignedLessons.get(lesson) + 1);
+            }
         }
         return assignedLessons;
     }
