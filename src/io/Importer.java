@@ -13,7 +13,7 @@ import java.util.LinkedList;
 public class Importer {
 
     // Function to read file of lessons
-    public HashMap<Integer ,Lesson> createLessonsMap(String fileName) throws Exception {
+    public HashMap<Integer ,Lesson> readLessonsFile(String fileName) throws Exception {
 
         File file = new File(fileName);
         // the file includes greek, so we need to set charset = ISO-8859-7. UTF8 doesn't work.
@@ -49,7 +49,7 @@ public class Importer {
     }
 
     // Function to read file of teachers
-    public HashMap<Integer ,Teacher> createTeachersMap(String fileName) throws Exception {
+    public HashMap<Integer ,Teacher> readTeachersFile(String fileName) throws Exception {
 
         File file = new File(fileName);
         // the file includes greek, so we need to set charset = ISO-8859-7. UTF8 doesn't work.

@@ -3,7 +3,6 @@ import io.Exporter;
 import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
-import search.Chromosome;
 import search.Gene;
 import search.Genetic;
 //import search.Chromosome;
@@ -25,8 +24,8 @@ public class Main {
         LinkedList<LinkedList<Gene>> genes = new LinkedList<>();
 
         try {
-            lessons = importer.createLessonsMap(args[0]);
-            teachers = importer.createTeachersMap(args[1]);
+            lessons = importer.readLessonsFile(args[0]);
+            teachers = importer.readTeachersFile(args[1]);
         } catch (Exception e) {
             System.err.println("No proper arguments given.");
             System.err.println("The arguments should be lessons.txt teachers.txt");
@@ -46,31 +45,11 @@ public class Main {
         Genetic genetic = new Genetic(lessons, teachers, genes);
         //genetic.lessonsList();
         //genetic.teachersList();
-        genetic.initializePopulation(100);
+
+        genetic.initializePopulation(10);
 
         Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-
-
-        /**
-         * Trying calculateTeachersScore() method. Run it! xoxoxo
-         * P.S. doesn't work with : " Exporter.createExcelOutput(genetic.getPopulation().get(0).toString()); " above.
-         * Στην αρχή εξήγαγα excel αρχείο με την εντολή : Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-         * και καλούσα την calculateTeachersScore() φτιάχνοντας ένα χρωμόσωμα. Οπότε μου έβγαζε στην κονσόλα διαφορετικά αποτελέσματα από αυτά που έβλεπα στο excel.
-         * Μετά κατάλαβα ότι έφτιαχνα excel δίνοντας σαν όρισμα στην createExcelOutput() το : genetic.getPopulation().get(0).toString() , ενώ έπρεπε να δώσω το χρωμόσωμα που εξέταζα (ch).
-         * Στη main μας λοιπόν, πως θα πρέπει να παράγουμε excel ;
-         *
-         * Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-         * ή
-         * Chromosome ch = new Chromosome(genes,teachers,lessons);
-         * Exporter.createExcelOutput(ch.toString());
-         *
-         * Με τον πάνω τρόπο δεν μπορώ να καλέσω την calculateTeachersScore.
-         */
-        Chromosome ch = new Chromosome(genes,teachers,lessons);
-        Exporter.createExcelOutput(ch.toString());
-        ch.calculateConsecutiveTeachersScore();
-
-
+        genetic.getPopulation().get(0).calculateUnevenDistributedHoursPerLesson();
 
        // System.out.println("Score: " + genetic.getPopulation().get(0).getFitness());
 
