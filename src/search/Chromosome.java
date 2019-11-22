@@ -49,14 +49,6 @@ public class Chromosome {
         Random r = new Random();
         int upperRandomLimit;
 
-        //A list that will hold 5 hashmaps of teachers and their daily hours
-        LinkedList<HashMap<Teacher, Integer>> teachersDayHours = new LinkedList<>();
-        for (int i = 0; i < 5; i++) {
-            teachersDayHours.add(new HashMap<>());
-        }
-
-        int teacher1DayHours;
-
         for (int c = 0; c < maxClasses; c++) {
             upperRandomLimit = genesList.get(c).size();
             for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
@@ -66,15 +58,7 @@ public class Chromosome {
                         gene = genesList.get(c).get(r.nextInt(upperRandomLimit));
                         this.chromosome[c][s][d][h] = gene;
 
-                        //decreasing week hours of each teacher when assigned
-                        Teacher teacher = gene.getTeacher();
-                        int teachersWeekHours = teacherHashMap.get(teacher.getId()).getWeekHours();
-                        teacherHashMap.get(teacher.getId()).setWeekHours(teachersWeekHours - 1);
 
-                        //keeping for each teacher that occurs the number of hours that taught
-                        // in that day in 1 subclass
-                        //int temp = teachersDayHours.get(d).getOrDefault(teacher, 0);
-                        //teachersDayHours1Class.put(teacher, teacherDayHours + 1);
 
                         //In each assignment og lesson-teacher combination the program keeps a
                         //record of the assigned teachers and lessons in order to be handled
@@ -113,16 +97,17 @@ public class Chromosome {
     }
 
 
+
     private void calculateFitness() {
-        int subClassesScore = calculateGapsScore();
+        int subClassesGapsScore = calculateGapsScore();
         int unevenHoursScore = calculateUnevenHoursScore();
         int consecutiveTeachersScore = calculateConsecutiveTeachersScore();
         int teachersEvenHours = calculateTeachersEvenHours(assignedTeachers, allTeachers);
 
+        int acceptableTeachersHours = calculateAcceptableTeachersHours();
 
-        //int teachersScore = calculateTeachersScore();
         //int lessonsScore = calculateLessonsScore();
-        fitness = subClassesScore;
+        fitness = subClassesGapsScore + unevenHoursScore + consecutiveTeachersScore + teachersEvenHours;
     }
 
     //Constraint #1
@@ -178,11 +163,6 @@ public class Chromosome {
                         middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
                         firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
 
-                        System.out.println("same teacher more than 2 hours");
-                        System.out.println("Found in class: " + c + " , Subclass: " + s +
-                                " and Day: " + d + ". Teacher Name: " +
-                                chromosome[c][s][d][h - 2].getTeacher().getName());
-
                         consecutiveHours = consecutiveHours +
                                 compareTeachersId (firstTeacher, middleTeacher, lastTeacher);
                     }
@@ -206,33 +186,6 @@ public class Chromosome {
         return 0;
     }
 
-    //Constraint #3
-    private int calculateUnevenHoursScore() {
-        //total teaching hours
-        int teachingHoursPerDay;
-
-        //Worst case scenario
-        int maxEvenHoursScore = 42 * 9;
-        int evenHoursScore;
-        int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay; d++) {
-                    teachingHoursPerDay = 0;
-                    for (int h = 0; h < maxHour; h++) {
-                        if (chromosome[c][s][d][h].getLesson().getId() > 0) {
-                            teachingHoursPerDay++;
-                        }
-                    }
-                subClassesHours[c][s][d] = teachingHoursPerDay;
-                }
-            }
-        }
-
-        evenHoursScore = calcSubClassesEvenHours(subClassesHours,maxEvenHoursScore);
-        return evenHoursScore;
-    }
-
     //Secondary method for Constraint #2
     private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
         float temp;
@@ -254,6 +207,32 @@ public class Chromosome {
         return (int) temp;
     }
 
+    //Constraint #3
+    private int calculateUnevenHoursScore() {
+        //total teaching hours
+        int teachingHoursPerDay;
+
+        //Worst case scenario
+        int maxEvenHoursScore = 42 * 9;
+        int evenHoursScore;
+        int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    teachingHoursPerDay = 0;
+                    for (int h = 0; h < maxHour; h++) {
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) {
+                            teachingHoursPerDay++;
+                        }
+                    }
+                    subClassesHours[c][s][d] = teachingHoursPerDay;
+                }
+            }
+        }
+
+        evenHoursScore = calcSubClassesEvenHours(subClassesHours,maxEvenHoursScore);
+        return evenHoursScore;
+    }
 
     //Constraint #5
     private int calculateTeachersEvenHours (HashMap<Teacher,Integer> assignedTeachers,
@@ -277,6 +256,75 @@ public class Chromosome {
         //TODO: check formula
         difference = difference / 100;
         return Math.round(100-difference);
+    }
+    //Must Constraint of txt files
+    private int calculateAcceptableTeachersHours () {
+
+        //A list that will hold, each teacher's week hours of teaching
+        HashMap<Teacher, Integer> teachersMaxWeekHours = new HashMap<>();
+
+        //A list that will hold 5 hashmaps, each for the hours of all teachers in a each day
+        HashMap<Teacher, Integer> teachersMaxDayHours = new HashMap<>();
+        HashMap<Teacher, Integer> teachersDayHours;
+        int previousWeekHours;
+        int previousDayHours;
+        Teacher teacher;
+
+        for (int d = 0; d < maxDay; d++) { //foreach day
+            teachersDayHours = new HashMap<>();
+            for (int c = 0; c < maxClasses; c++) {
+                for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
+                    for (int h = 0; h < maxHour; h++) { //foreach hour
+                        teacher = chromosome[c][s][d][h].getTeacher();
+
+                        if (teacher.getId()>0) {
+                            previousDayHours = teachersDayHours.getOrDefault(teacher, 0);
+                            teachersDayHours.put(teacher, previousDayHours + 1);
+
+                            previousWeekHours = teachersMaxWeekHours.getOrDefault(teacher, 0);
+                            teachersMaxWeekHours.put(teacher, previousWeekHours + 1);
+                        }
+                    }
+                }
+            }
+
+            //for every teacher that we found in that day
+            for (Teacher t: teachersDayHours.keySet()) {
+
+                //if (1) our list that keeps all maximum hours of all teachers has that teacher
+                //and has lower value that the hours of the day we are checking
+                // or (2) our list that keeps all maximum hours of all teachers does not have that
+                // teacher
+                // then put today's' hours in the teacher's maxHour value
+                if ( (teachersMaxDayHours.containsKey(t)
+                        &&  teachersMaxDayHours.get(t) < teachersDayHours.get(t) )
+                        || !teachersMaxDayHours.containsKey(t) ) {
+
+                    teachersMaxDayHours.put(t, teachersDayHours.get(t));
+                }
+            }
+        }
+
+        //Comparing of the hours of the teachers that were assigned to the hours that could teach
+        //Per week
+        int negativeScoreWeek = 0;
+        int negativeScoreDay = 0;
+        int totalTeachers = 0;
+        for (int teacherId : allTeachers.keySet()) {
+            if (teacherId>0) totalTeachers++;
+            teacher = allTeachers.get(teacherId);
+            if (teacher.getWeekHours() < teachersMaxWeekHours.get(teacher))
+                negativeScoreWeek++;
+            if (teacher.getDayHours() < teachersMaxDayHours.get(teacher))
+                negativeScoreDay++;
+        }
+
+        float overallScore;
+        overallScore = (float) ((totalTeachers * 2)  - (negativeScoreDay + negativeScoreWeek))
+                / (totalTeachers *2);
+        overallScore = Math.abs(overallScore *100);
+
+        return (int) overallScore;
     }
 
     private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
