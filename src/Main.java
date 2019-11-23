@@ -2,6 +2,7 @@ import io.Exporter;
 import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
+import search.Chromosome;
 import search.Gene;
 import search.Genetic;
 import java.util.HashMap;
@@ -31,18 +32,10 @@ public class Main {
             genes = Gene.allPossibleGenes(lessons,teachers,nullGenes);
         }
 
+
         Genetic genetic = new Genetic(lessons, teachers, genes);
-        genetic.initializePopulation(5);
-        Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
+        Chromosome solution = genetic.start(100, 0.1, 94, 1000);
+        Exporter.createExcelOutput(solution.toString());
 
-
-        //Kanonika tha prepei na kaloume ta parakatw kai na paragei apotelesma:
-        //Genetic genetic = new Genetic(lessons, teachers, genes);
-        //Chromosome solution = genetic.start(100, 0.1, 1, 1000);
-        //Exporter.createExcelOutput(solution.toString());
-
-
-        //random values for testing
-        //Chromosome solution = genetic.start(100, 0.1, 1, 1000);
     }
 }

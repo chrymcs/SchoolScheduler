@@ -20,6 +20,8 @@ public class Genetic {
      * By creating this ArrayList so, and choosing a random index from it,
      * the greater the fitness score of a chromosome the greater chance it will be chosen.
      */
+    //periexei akeraious. px to 0 antistoixei sto chromosome 0. an auto to chromosome exei px totalfitness = 10, tha emfanistei ston pinaka fitnessbounds 10 fores. ara einai pio
+    //pithano na epilegei apo ena xrwmoswma pou exei totalfitness = 4
     private ArrayList<Integer> fitnessBounds;
 
     private HashMap<Integer,Lesson> allLessons;
@@ -37,14 +39,14 @@ public class Genetic {
     /**
      * @param populationSize: The size of the population in every step
      * @param mutationProbability: The propability a mutation might occur in a chromosome
-     * @param maximumFitness: The maximum fitness value of the solution we wish to find
+     * @param minimumAllowedFitness: The minimum fitness value of the solution we wish to find
      * @param maximumSteps: The maximum number of steps we will search for a solution
      */
 
-    public Chromosome start (int populationSize, double mutationProbability, int maximumFitness,
+    public Chromosome start (int populationSize, double mutationProbability, int minimumAllowedFitness,
                        int maximumSteps) {
 
-        //TODO. O parakatw kwdikas einai tou lab3
+        System.out.println("\nStart...\n");
 
         //We initialize the population
         this.initializePopulation(populationSize);
@@ -56,15 +58,18 @@ public class Genetic {
             //Initialize the new generated population
             ArrayList<Chromosome> newPopulation = new ArrayList<Chromosome>();
 
-            for(int i=0; i < populationSize; i++)
+            for(int i=0; i < populationSize / 2; i++)
             {
+
+                System.out.println("Step: " + step + " " + i);
+
                 //We choose two chromosomes from the population
                 //Due to how fitnessBounds ArrayList is generated, the propability of
                 //selecting a specific chromosome depends on its fitness score
                 int xIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
                 Chromosome x = this.population.get(xIndex);
                 int yIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
-                while(yIndex == xIndex)
+                while(yIndex == xIndex) //we don't want reproduction with the same parent. We need different
                 {
                     yIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
                 }
@@ -89,13 +94,14 @@ public class Genetic {
             }
             this.population = new ArrayList<Chromosome>(newPopulation);
 
-            //TODO apo edw kai katw prepei na doume ligo ta fitness mas. Se emas oso megalutero einai to fitness, toso xeirotera!
+            //TODO theloume na kratame kai tous kaluterous palious goneis.
 
             //We sort the population so the one with the minimum fitness is first
             this.population.sort(Collections.reverseOrder());
             //If the chromosome with the best fitness is acceptable we return it
-            if(this.population.get(0).getFitness() <= maximumFitness)
+            if(this.population.get(0).getFitness() >= minimumAllowedFitness)
             {
+                System.out.println("Total calculated fitness of final state: " + this.population.get(0).getFitness());
                 System.out.println("Finished after " + step + " steps...");
                 return this.population.get(0);
             }
@@ -104,13 +110,11 @@ public class Genetic {
         }
 
         System.out.println("Finished after " + maximumSteps + " steps...");
-        return this.population.get(0);
-
-        //return new Chromosome(population);
+        return this.population.get(0); //first is the best, because we sorted the population list above.
     }
 
     //initialization for the population
-    public void initializePopulation (int populationSize) {
+    private void initializePopulation(int populationSize) {
         this.population = new ArrayList <Chromosome>();
         for (int i=0 ; i < populationSize ; i++) {
             this.population.add(new Chromosome(genes, allTeachers, allLessons));
@@ -128,44 +132,144 @@ public class Genetic {
                 //TODO nai alla se emas oso megalwnai to fitness, toso xeirotera einai! de theloume na dialeksei to xeirotero.
                 //Each chromosome index exists in the ArrayList as many times as its fitness score
                 //By creating this ArrayList so, and choosing a random index from it,
-                //the MINIMUM the fitness score of a chromosome the greater chance it will be chosen.
+                //the maximum the fitness score of a chromosome the greater chance it will be chosen.
                 fitnessBounds.add(i);
             }
         }
     }
 
-    public Offspring reproduce (Chromosome x, Chromosome y) {
+
+    private Offspring reproduce(Chromosome x, Chromosome y) {
 
         Random r = new Random();
 
-        int intersectionPointClass = r.nextInt(2);
-        int intersectionPointSubClass = r.nextInt(2);
-        int intersectionPointDay= r.nextInt(4);
-        int intersectionPointHour = r.nextInt(6);
+        //for each reproduction we will split randomly on one and only dimension.
 
-        Gene [][][][] childChromosomeA = new Gene [3][3][7][5];
-        Gene [][][][] childChromosomeB = new Gene [3][3][7][5];
+        int dimension = r.nextInt(4) + 1;
 
-        //The 1st child has the left side of the x chromosome up to the intersection point...
-        //The 2nd child has the left side of the y chromosome up to the intersection point...
-        for (int c=0; c < intersectionPointClass; c++) {
-            for (int s = 0; s < intersectionPointSubClass; s++) {
-                for (int d = 0; d < intersectionPointDay; d++) {
-                    for (int h = 0; h < intersectionPointHour; h++) {
-                        childChromosomeA[c][s][d][h] = x.getGenes()[c][s][d][h];
-                        childChromosomeB[c][s][d][h] = y.getGenes()[c][s][d][h];
+        Gene [][][][] childChromosomeA = new Gene [3][3][5][7];
+        Gene [][][][] childChromosomeB = new Gene [3][3][5][7];
+
+        //split on class
+        if (dimension == 1) {
+            int splitPoint = r.nextInt(3);
+
+            //The 1st child has the left side of the x chromosome up to the intersection point...
+            //The 2nd child has the left side of the y chromosome up to the intersection point...
+            for (int c = 0; c < splitPoint; c++) {
+                for (int s = 0; s < 3; s++) {
+                    for (int d = 0; d < 5; d++) {
+                        for (int h = 0; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = x.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = y.getGenes()[c][s][d][h];
+                        }
+                    }
+                }
+            }
+
+            //...and the right side of the y chromosome after the intersection point
+            //...and the right side of the x chromosome after the intersection point
+            for (int c = splitPoint; c < 3; c++) {
+                for (int s = 0; s < 3; s++) {
+                    for (int d = 0; d < 5; d++) {
+                        for (int h = 0; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = y.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = x.getGenes()[c][s][d][h];
+                        }
+                    }
+                }
+            }
+
+        }
+
+        //split on subclass
+        else if (dimension == 2) {
+            int splitPoint = r.nextInt(3);
+
+            //The 1st child has the left side of the x chromosome up to the intersection point...
+            //The 2nd child has the left side of the y chromosome up to the intersection point...
+            for (int c = 0; c < 3; c++) {
+                for (int s = 0; s < splitPoint; s++) {
+                    for (int d = 0; d < 5; d++) {
+                        for (int h = 0; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = x.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = y.getGenes()[c][s][d][h];
+                        }
+                    }
+                }
+            }
+
+            //...and the right side of the y chromosome after the intersection point
+            //...and the right side of the x chromosome after the intersection point
+            for (int c = 0; c < 3; c++) {
+                for (int s = splitPoint; s < 3; s++) {
+                    for (int d = 0; d < 5; d++) {
+                        for (int h = 0; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = y.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = x.getGenes()[c][s][d][h];
+                        }
                     }
                 }
             }
         }
-        //...and the right side of the y chromosome after the intersection point
-        //...and the right side of the x chromosome after the intersection point
-        for (int c = intersectionPointClass; c < 3; c++) {
-            for (int s = intersectionPointSubClass; s < 3; s++) {
-                for (int d = intersectionPointDay; d < 5; d++) {
-                    for (int h = intersectionPointHour; h < 7; h++) {
-                        childChromosomeA[c][s][d][h] = y.getGenes()[c][s][d][h];
-                        childChromosomeB[c][s][d][h] = x.getGenes()[c][s][d][h];
+
+        //split on day
+        else if (dimension == 3) {
+            int splitPoint = r.nextInt(5);
+
+            //The 1st child has the left side of the x chromosome up to the intersection point...
+            //The 2nd child has the left side of the y chromosome up to the intersection point...
+            for (int c = 0; c < 3; c++) {
+                for (int s = 0; s < 3; s++) {
+                    for (int d = 0; d < splitPoint; d++) {
+                        for (int h = 0; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = x.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = y.getGenes()[c][s][d][h];
+                        }
+                    }
+                }
+            }
+
+            //...and the right side of the y chromosome after the intersection point
+            //...and the right side of the x chromosome after the intersection point
+            for (int c = 0; c < 3; c++) {
+                for (int s = 0; s < 3; s++) {
+                    for (int d = splitPoint; d < 5; d++) {
+                        for (int h = 0; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = y.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = x.getGenes()[c][s][d][h];
+                        }
+                    }
+                }
+            }
+        }
+
+        //split on hour
+        else {
+            int splitPoint = r.nextInt(7);
+
+            //The 1st child has the left side of the x chromosome up to the intersection point...
+            //The 2nd child has the left side of the y chromosome up to the intersection point...
+            for (int c = 0; c < 3; c++) {
+                for (int s = 0; s < 3; s++) {
+                    for (int d = 0; d < 5; d++) {
+                        for (int h = 0; h < splitPoint; h++) {
+                            childChromosomeA[c][s][d][h] = x.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = y.getGenes()[c][s][d][h];
+                        }
+                    }
+                }
+            }
+
+            //...and the right side of the y chromosome after the intersection point
+            //...and the right side of the x chromosome after the intersection point
+            for (int c = 0; c < 3; c++) {
+                for (int s = 0; s < 3; s++) {
+                    for (int d = 0; d < 5; d++) {
+                        for (int h = splitPoint; h < 7; h++) {
+                            childChromosomeA[c][s][d][h] = y.getGenes()[c][s][d][h];
+                            childChromosomeB[c][s][d][h] = x.getGenes()[c][s][d][h];
+                        }
                     }
                 }
             }

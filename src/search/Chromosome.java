@@ -10,7 +10,7 @@ import java.util.*;
  * Class that represents a Schedule - Chromosome
  * Each Chromosome has 7*45 genes.
  */
-public class Chromosome {
+public class Chromosome implements Comparable<Chromosome> {
 
     private Gene[][][][] chromosome; // hoursPerDay - daysPerWeek - subClassesPerSchedule
     private int maxClasses = 3, maxDay = 5, maxHour = 7, maxSubClasses = 3;
@@ -24,6 +24,7 @@ public class Chromosome {
     /** CONSTRUCTORS */
 
     public Chromosome (Gene[][][][] childChromosome) {
+        chromosome = new Gene[maxClasses][maxSubClasses][maxDay][maxHour];
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
@@ -33,6 +34,7 @@ public class Chromosome {
                 }
             }
         }
+        calculateFitness();
     }
 
 
@@ -71,6 +73,7 @@ public class Chromosome {
         calculateFitness();
     }
 
+
 /** ------------------------------------------------------------------------------------------------------------------------------------------------ */
 
     /** SETTERS - GETTERS */
@@ -98,6 +101,10 @@ public class Chromosome {
     //calculate total fitness
     private void calculateFitness() {
         int subClassesGapsScore = calculateGapsScore();
+        int calcConsecTeachersScore = calculateConsecutiveTeachersScore();
+        //athroizw ola ta fitness kai diairw me to plithos tous (mesos oros). TODO giati mou vgazei pada idio apotelesma omws? panta fitness=99 kai finished kateutheian
+        fitness = (subClassesGapsScore + calcConsecTeachersScore)/2;
+
         /*int unevenHoursScore = calculateUnevenHoursScore();
         int consecutiveTeachersScore = calculateConsecutiveTeachersScore();
         int teachersEvenHours = calculateTeachersEvenHours(assignedTeachers, allTeachers);
@@ -108,9 +115,11 @@ public class Chromosome {
 
         //int lessonsScore = calculateLessonsScore();
         fitness = subClassesGapsScore + unevenHoursScore + consecutiveTeachersScore + teachersEvenHours;*/
+        //totalfitness = fitness/100
+        //return totalfitness
     }
 
-    //Constraint #1
+    //Constraint #1 - works!!!
     private int calculateGapsScore() {
         int gapsCounter = 0;
         float gapsScore; //total gap hours
@@ -134,12 +143,13 @@ public class Chromosome {
                 }
             }
         }
+        //the greater the gapsScore is, the better the program
         gapsScore = (float) (teachingHoursCounter - gapsCounter)/teachingHoursCounter;
         gapsScore = Math.round(gapsScore * 100);
         return (int) gapsScore;
     }
 
-    //Constraint #2
+    //Constraint #2 - works!!!
     public int calculateConsecutiveTeachersScore() {
         int consecutiveHours = 0;
         int consecutiveScore = 100;
@@ -160,21 +170,22 @@ public class Chromosome {
             }
         }
         //In case too many teachers have 3 consecutive hours of teaching then the program maxes
-        // the consecutive hours to 100, so this category's fitness is 0.
+        //the consecutive hours to 100, so this category's fitness is 0 (bad).
         if (consecutiveHours > 100) consecutiveHours = 100;
         consecutiveScore = consecutiveScore - consecutiveHours;
 
-        //evenHoursScore = calcTeachersEvenHoursPerLesson(assignedLessons, assignedTeachers);
         return consecutiveScore;
     }
 
-    //Secondary method for Constraint #2
+    //Secondary method for Constraint #2 - works!!!
     private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
         if (teacher_A == teacher_B && teacher_B == teacher_C && teacher_C != -1)  {
             return 1;
         }
         return 0;
     }
+
+
 
     //Constraint #3
     private int calculateUnevenHoursScore() {
@@ -606,6 +617,13 @@ public class Chromosome {
         }
         str = stringBuilder.toString();
         return str;
+    }
+
+    @Override
+    //The compareTo function has been overriden so sorting can be done according to fitness scores
+    public int compareTo(Chromosome x)
+    {
+        return this.fitness - x.fitness;
     }
 
 }
