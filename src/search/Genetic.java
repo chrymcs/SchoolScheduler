@@ -29,7 +29,7 @@ public class Genetic {
     private LinkedList<Gene> genes;
 
     public Genetic (HashMap<Integer,Lesson> allLessons, HashMap<Integer,Teacher> allTeachers, LinkedList<Gene> genesList) {
-        this.population = null;
+        this.population = new ArrayList<>();
         this.fitnessBounds = null;
         this.allLessons = allLessons;
         this.allTeachers = allTeachers;
@@ -56,10 +56,10 @@ public class Genetic {
         for(int step=0; step < maximumSteps; step++)
         {
             //Initialize the new generated population
-            ArrayList<Chromosome> newPopulation = new ArrayList<Chromosome>();
+            ArrayList<Chromosome> newPopulation = new ArrayList<>();
 
-            for(int i=0; i < populationSize / 2; i++)
-            {
+            for(int i=0; i < populationSize / 2; i++) {
+
 
                 System.out.println("Step: " + step + " " + i);
 
@@ -92,17 +92,22 @@ public class Genetic {
                 newPopulation.add(child2);
 
             }
-            this.population = new ArrayList<Chromosome>(newPopulation);
+            for (int i = 0; i < populationSize/2; i++) {
+                newPopulation.add(population.remove(0));
+            }
+            this.population = newPopulation;
 
             //TODO theloume na kratame kai tous kaluterous palious goneis.
 
             //We sort the population so the one with the minimum fitness is first
             this.population.sort(Collections.reverseOrder());
+            System.out.println("Fitness: " + this.population.get(0).getFitness());
             //If the chromosome with the best fitness is acceptable we return it
             if(this.population.get(0).getFitness() >= minimumAllowedFitness)
             {
                 System.out.println("Total calculated fitness of final state: " + this.population.get(0).getFitness());
                 System.out.println("Finished after " + step + " steps...");
+                this.population.get(0).printDetailedFitness();
                 return this.population.get(0);
             }
             //We update the fitnessBounds arrayList
@@ -110,16 +115,17 @@ public class Genetic {
         }
 
         System.out.println("Finished after " + maximumSteps + " steps...");
+        this.population.get(0).printDetailedFitness();
         return this.population.get(0); //first is the best, because we sorted the population list above.
     }
 
     //initialization for the population
     private void initializePopulation(int populationSize) {
-        this.population = new ArrayList <Chromosome>();
         for (int i=0 ; i < populationSize ; i++) {
-            this.population.add(new Chromosome(genes, allTeachers, allLessons));
+            this.population.add(new Chromosome(genes, this.allTeachers, this.allLessons));
         }
         this.updateFitnessBounds();
+        this.population.sort(Collections.reverseOrder());
     }
 
     //Updates the arraylist that contains indexes of the chromosomes in the population ArrayList
@@ -129,7 +135,6 @@ public class Genetic {
         {
             for(int j=0; j<this.population.get(i).getFitness(); j++)
             {
-                //TODO nai alla se emas oso megalwnai to fitness, toso xeirotera einai! de theloume na dialeksei to xeirotero.
                 //Each chromosome index exists in the ArrayList as many times as its fitness score
                 //By creating this ArrayList so, and choosing a random index from it,
                 //the maximum the fitness score of a chromosome the greater chance it will be chosen.
@@ -275,7 +280,11 @@ public class Genetic {
             }
         }
 
-        return new Offspring(new Chromosome(childChromosomeA), new Chromosome(childChromosomeB));
+        return new Offspring(
+                new Chromosome(childChromosomeA, genes,
+                                allTeachers, allLessons),
+                new Chromosome(childChromosomeB, genes,
+                                allTeachers, allLessons));
     }
 
     class Offspring { //inner class to help return 2 objects in reproduce() method
