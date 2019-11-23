@@ -43,26 +43,26 @@ public class Gene {
      The method below, creates all possible lesson-teacher combinations, based on each teacher's potential on teaching a specific (or more) subject.
      @param lessons LinkedList of lessons (assuming all)
      @param teachers LinkedList of teachers (assuming all)
-     @param classGrade String grade of class (A, B or C)
      @return LinkedList of all possible combinations
      */
 
-    public static LinkedList<Gene> combinationsPerClass (HashMap<Integer,Lesson> lessons, HashMap<Integer,Teacher> teachers, String classGrade, int nullGenes) {
-
-        //For every lesson in " + classGrade + "' class, who can teach it?
+    //to allazw. de tha dinw classGrade. tha exw apla mia lista me ola ola ola ta pithana gonidia aneksartitws. oi sindiasmoi mesa tha einai lesson-teacher simfwna
+    //me ti mporei na didaksei o kathe kathigitis alla de tha exw 3 listes, mia gia kathe taksi.
+    //arxika tha trexei pio grigora to programma
+    //deuteron tha exei kai nohma to constraint : kamia taksi na mhn periexei mathimata allis taksis.
+    public static LinkedList<Gene> allPossibleGenes (HashMap<Integer,Lesson> lessons, HashMap<Integer,Teacher> teachers, int nullGenes) {
 
         LinkedList<Gene> genes = new LinkedList<>();
 
         for (int lessonId: lessons.keySet()) {
-            if (lessons.get(lessonId).getClassGrade().equals(classGrade)) { //if classGrade of lesson (A,B or C) equals the given classGrade
-                for (int teacherId : teachers.keySet()) {
-                    if (teachers.get(teacherId).getLessons().contains(lessonId)) { //find which professors teaches this lesson
-                        Gene g = new Gene(lessons.get(lessonId),teachers.get(teacherId)); //create a new gene with lesson-teacher combination
-                        genes.add(g);
-                    }
-                    lessons.get(lessonId).setAvailableTeachers(teachers.get(teacherId));
+            for (int teacherId : teachers.keySet()) {
+                if (teachers.get(teacherId).getLessons().contains(lessonId)) { //find which professors teaches this lesson
+                    Gene g = new Gene(lessons.get(lessonId),teachers.get(teacherId)); //create a new gene with lesson-teacher combination
+                    genes.add(g);
                 }
+                lessons.get(lessonId).setAvailableTeachers(teachers.get(teacherId));
             }
+
         }
         //combination of null lesson with null teacher
         Lesson l = new Lesson(-1, "NULL", null, 0);

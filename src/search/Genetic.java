@@ -24,9 +24,9 @@ public class Genetic {
 
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Integer,Teacher> allTeachers;
-    private LinkedList<LinkedList<Gene>> genes;
+    private LinkedList<Gene> genes;
 
-    public Genetic (HashMap<Integer,Lesson> allLessons, HashMap<Integer,Teacher> allTeachers, LinkedList<LinkedList<Gene>> genesList) {
+    public Genetic (HashMap<Integer,Lesson> allLessons, HashMap<Integer,Teacher> allTeachers, LinkedList<Gene> genesList) {
         this.population = null;
         this.fitnessBounds = null;
         this.allLessons = allLessons;
@@ -69,20 +69,29 @@ public class Genetic {
                     yIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
                 }
                 Chromosome y = this.population.get(yIndex);
-                //We generate the "child" of the two chromosomes
-                Chromosome child = this.reproduce(x, y);
-                //We might then mutate the child
+
+                //We generate the children of the two chromosomes.
+                Chromosome child1 = this.reproduce(x,y).child1;
+                Chromosome child2 = this.reproduce(x,y).child2;
+
+                //We might then mutate one of the children or both of them (or none).
                 if(r.nextDouble() < mutationProbability)
                 {
-                    child.mutate();
+                    //TODO code mutate() method in Chromosome class
+                    child1.mutate();
+                    child2.mutate();
                 }
                 //...and finally add it to the new population
-                newPopulation.add(child);
+                newPopulation.add(child1);
+                newPopulation.add(child2);
+
             }
             this.population = new ArrayList<Chromosome>(newPopulation);
 
+            //TODO apo edw kai katw prepei na doume ligo ta fitness mas. Se emas oso megalutero einai to fitness, toso xeirotera!
+
             //We sort the population so the one with the greater fitness is first
-            Collections.sort(this.population, Collections.reverseOrder());
+            this.population.sort(Collections.reverseOrder());
             //If the chromosome with the best fitness is acceptable we return it
             if(this.population.get(0).getFitness() >= minimumFitness)
             {
@@ -114,6 +123,7 @@ public class Genetic {
         {
             for(int j=0; j<this.population.get(i).getFitness(); j++)
             {
+                //TODO nai alla se emas oso megalwnai to fitness, toso xeirotera einai! de theloume na dialeksei to xeirotero.S
                 //Each chromosome index exists in the ArrayList as many times as its fitness score
                 //By creating this ArrayList so, and choosing a random index from it,
                 //the greater the fitness score of a chromosome the greater chance it will be chosen.
@@ -122,14 +132,18 @@ public class Genetic {
         }
     }
 
-    public Chromosome reproduce (Chromosome x, Chromosome y) {
+    public Offspring reproduce (Chromosome x, Chromosome y) {
+
         Random r = new Random();
+
         int intersectionPointClass = r.nextInt(2);
         int intersectionPointSubClass = r.nextInt(2);
         int intersectionPointDay= r.nextInt(4);
         int intersectionPointHour = r.nextInt(6);
+
         Gene [][][][] childChromosomeA = new Gene [3][3][7][5];
         Gene [][][][] childChromosomeB = new Gene [3][3][7][5];
+
         //The 1st child has the left side of the x chromosome up to the intersection point...
         //The 2nd child has the left side of the y chromosome up to the intersection point...
         for (int c=0; c < intersectionPointClass; c++) {
@@ -154,11 +168,19 @@ public class Genetic {
                 }
             }
         }
-        return new Chromosome(childChromosomeA);
-        //TODO method must return both childs... somehow...
-        //return new Chromosome(childChromosomeB);
+
+        return new Offspring(new Chromosome(childChromosomeA), new Chromosome(childChromosomeB));
     }
 
+    class Offspring { //inner class to help return 2 objects in reproduce() method
+        private Chromosome child1;
+        private Chromosome child2;
+
+        Offspring(Chromosome chromosomeA, Chromosome chromosomeB) {
+            this.child1 = chromosomeA;
+            this.child2 = chromosomeB;
+        }
+    }
 
 
     public ArrayList<Chromosome> getPopulation() {

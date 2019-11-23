@@ -14,9 +14,7 @@ public class Chromosome {
 
     private Gene[][][][] chromosome; // hoursPerDay - daysPerWeek - subClassesPerSchedule
     private int maxClasses = 3, maxDay = 5, maxHour = 7, maxSubClasses = 3;
-    private int fitness, eligibleFitness;
-    private int totalLessonHoursNeeded;
-    private int [] hoursNeededPerClass = new int[3];
+    private int fitness;
     private HashMap<Integer,Teacher> allTeachers;
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
@@ -30,18 +28,18 @@ public class Chromosome {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 0; h < maxHour; h++) {
-                       this.chromosome[c][s][d][h] = childChromosome[c][s][d][h];
+                       chromosome[c][s][d][h] = childChromosome[c][s][d][h];
                     }
                 }
             }
         }
     }
 
-    public Chromosome(LinkedList<LinkedList<Gene>> genesList,
+
+    //Constructs a randomly created chromosome
+    public Chromosome(LinkedList<Gene> genesList,
                       HashMap<Integer,Teacher> teacherHashMap,
-                      HashMap<Integer,Lesson> lessonHashMap
-                      //int totalLessonHoursNeeded, int[] hoursNeededPerClass
-                        ) {
+                      HashMap<Integer,Lesson> lessonHashMap) {
         allTeachers = teacherHashMap;
         allLessons = lessonHashMap;
         //this.totalLessonHoursNeeded = totalLessonHoursNeeded;
@@ -49,21 +47,19 @@ public class Chromosome {
         Gene gene;
         this.chromosome = new Gene[3][3][5][7];
         Random r = new Random();
-        int upperRandomLimit;
+        int upperRandomLimit = genesList.size();
 
         for (int c = 0; c < maxClasses; c++) {
-            upperRandomLimit = genesList.get(c).size();
             for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
                 for (int d = 0; d < maxDay; d++) { //foreach day
-                //HashMap<Teacher, Integer> teachersDayHours1Class = new HashMap<>();
                     for (int h = 0; h < maxHour  ; h++) { //foreach hour
-                        gene = genesList.get(c).get(r.nextInt(upperRandomLimit));
+                        gene = genesList.get(r.nextInt(upperRandomLimit));
                         this.chromosome[c][s][d][h] = gene;
 
                         //In each assignment og lesson-teacher combination the program keeps a
                         //record of the assigned teachers and lessons in order to be handled
                         //later on and during constraint #5
-                        // TODO: may change comment
+                        // TODO: may change comment. Auta ta theloume?
                         assignedLessons = updateAssignedLessons(assignedLessons,
                                 gene.getLesson());
                         assignedTeachers = updateAssignedTeachers(assignedTeachers,
