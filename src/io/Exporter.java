@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -35,9 +36,12 @@ public class Exporter {
             }
         }
 
+        //Schedule.xls must be outputed in any Desktop
+       File desktopDir = new File(System.getProperty("user.home"), "Desktop");
+
         FileOutputStream fileOut;
         try {
-            fileOut = new FileOutputStream("C:\\Users\\cmihe\\Desktop\\someName.xls");
+            fileOut = new FileOutputStream(new File(desktopDir, "Schedule.xls"));
             wb.write(fileOut);
             fileOut.close();
         } catch (IOException e) {
