@@ -46,7 +46,7 @@ public class Main {
         genetic.initializePopulation(5);
 
         Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-        genetic.getPopulation().get(0).calculateUnevenDistributedHoursPerLesson();
+        //genetic.getPopulation().get(0).calculateUnevenDistributedHoursPerLesson();
 
 
         //random values for testing

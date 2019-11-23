@@ -22,7 +22,9 @@ public class Chromosome {
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
     private HashMap<Lesson,Integer> assignedLessons = new HashMap<>();
 
-/** CONSTRUCTORS */
+
+    /** CONSTRUCTORS */
+
     public Chromosome (Gene[][][][] childChromosome) {
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
@@ -73,17 +75,43 @@ public class Chromosome {
         calculateFitness();
     }
 
+/** ------------------------------------------------------------------------------------------------------------------------------------------------ */
 
+    /** SETTERS - GETTERS */
+
+    public Gene[][][][] getGenes () {
+        return this.chromosome;
+    }
+
+    //TODO: is needed?
+    public void setChromosome (Gene[][][][] genesList) {
+        this.chromosome = genesList;
+    }
+
+    public int getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
+    }
+
+/** ------------------------------------------------------------------------------------------------------------------------------------------------ */
+    /** CALCULATE FITNESS METHODS */
+
+    //calculate total fitness
     private void calculateFitness() {
         int subClassesGapsScore = calculateGapsScore();
-        int unevenHoursScore = calculateUnevenHoursScore();
+        /*int unevenHoursScore = calculateUnevenHoursScore();
         int consecutiveTeachersScore = calculateConsecutiveTeachersScore();
         int teachersEvenHours = calculateTeachersEvenHours(assignedTeachers, allTeachers);
 
         int acceptableTeachersHours = calculateAcceptableTeachersHours();
+        int acceptableLessons = calculateAcceptableLessons();
+        int acceptableLessonsHours = calculateAcceptableLessonsHours();
 
         //int lessonsScore = calculateLessonsScore();
-        fitness = subClassesGapsScore + unevenHoursScore + consecutiveTeachersScore + teachersEvenHours;
+        fitness = subClassesGapsScore + unevenHoursScore + consecutiveTeachersScore + teachersEvenHours;*/
     }
 
     //Constraint #1
@@ -216,13 +244,16 @@ public class Chromosome {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 0; h < maxHour; h++) {
                         if (chromosome[c][s][d][h].getLesson().getId() > 0) { //an den einai null
-                            currentLesson = chromosome[c][s][d][h].getLesson();
 
+                            currentLesson = chromosome[c][s][d][h].getLesson();
                             lesshoursPerDay = weekLessons(c, s, d, h, lessonsPerWeek, currentLesson); //gemizei ton lessonsPerWeek[] & epistrefei gia to sugekrimeno chromosome, mia arraylist me 5 theseis. kathe thesh antistoixei se 1 mera kai deixnei poses wres didasketai to mathima.
+
+                            //upologizw gia kathe mathima enos programmatos pws einai katanemimeno mesa sth vdomada k paragw to parakatw score
+                            int evenHoursScore = calcLessonsEvenHours(lesshoursPerDay, maxEvenHoursScore);
                         }
                     }
                 }
-                int evenHoursScore = calcLessonsEvenHours(lesshoursPerDay, maxEvenHoursScore);
+
                 //System.out.println(evenHoursScore);
             }
         }
@@ -256,9 +287,24 @@ public class Chromosome {
         int dayHours;
         ArrayList<Integer> lesshoursPerDay = new ArrayList<Integer>(); //pinakas pou krataei ola ta hoursperday enos mathimatos. diladi krataei 5 hoursPerDay, ena gia kathe mera.
 
-        if (!lessonsPerWeek.contains(currentLesson)) { //an den yparxei, valto kai pigaine vres ta ola
+        //TODO otan tha paw sto tmima p.x. A2, proigoumenws tha exw eksetasei to tmima A1 kai tha exw vrei p.x. MathimatikaA. Sto A2 tha ksanavrw MathimatikaA alla de tha kanei tipota giati uparxei idi sto lessonsPerWeek.
+
+        if (!lessonsPerWeek.contains(currentLesson)) { //an den yparxei, valto kai pigaine vres ta ola mesa sti vdomada
             lessonsPerWeek.add(currentLesson);
             dayHours = 1;
+
+            if (d==1) { //vrika 1h fora to mathima thn Trith.
+                lesshoursPerDay.add(0); //prepei na valw mia midenikh timh gia th deutera
+            }
+            else if (d==2) { //tetarth
+                lesshoursPerDay.add(0);
+                lesshoursPerDay.add(0);
+            }
+            else if (d==3) { //pempth
+                lesshoursPerDay.add(0);
+                lesshoursPerDay.add(0);
+                lesshoursPerDay.add(0);
+            }
 
             if (h<maxHour-1) {
                 for (h = h + 1; h < maxHour; h++) {
@@ -308,13 +354,13 @@ public class Chromosome {
         difference = difference / 100;
         return Math.round(100-difference);
     }
-    //Must Constraint of txt files
+    //Must Constraint of teachers.txt file
     private int calculateAcceptableTeachersHours () {
 
         //A list that will hold, each teacher's week hours of teaching
         HashMap<Teacher, Integer> teachersMaxWeekHours = new HashMap<>();
 
-        //A list that will hold 5 hashmaps, each for the hours of all teachers in a each day
+        //A list that will hold 5 hashmaps, each for the hours of all teachers in a day
         HashMap<Teacher, Integer> teachersMaxDayHours = new HashMap<>();
         HashMap<Teacher, Integer> teachersDayHours;
         int previousWeekHours;
@@ -378,6 +424,135 @@ public class Chromosome {
         return (int) overallScore;
     }
 
+    //1st must Constraint of lessons.txt file
+    private int calculateAcceptableLessons () {
+
+        /**
+         * a classA lesson have to be teached only in class A. Same constraint for classes B and C.
+         * */
+
+        int wrongClass = 0;
+        int maxWrongClass = 35 * 3; //ola ta mathimata stin A taksis na einai mathimata allis taksis. to idio kai sthn B, kai sthn C.
+        float score; //synoliko score constraint
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay - 1; d++) {
+                    for (int h = 0; h < maxHour; h++) {
+
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) { //an den einai null
+
+                            String grade = chromosome[c][s][d][h].getLesson().getClassGrade();
+                            if (grade.equals("A") && s != 0) { //an vrika mathima tis taksis A se allh taksi, tote exw provlima.
+                                wrongClass++;
+                            } else if (grade.equals("B") && s != 1) {
+                                wrongClass++;
+                            } else if (grade.equals("C") && s != 2) {
+                                wrongClass++;
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        score = (float)(maxWrongClass - wrongClass) / maxWrongClass;
+        score = Math.round(score * 100);
+        return (int)score;
+    }
+
+    //2nd must Constraint of lessons.txt file
+    private int calculateAcceptableLessonsHours () {
+
+        /**
+         * all lessons have to be teached exactly as many hours (per class) as the txt file says.
+         * hours * 3, because a class have 3 subclasses.
+        */
+
+        ArrayList<Lesson> lessonsFound = new ArrayList<>(); //to keep which lessons found until each moment.
+        int maxCurrentHours = 0; //poses wres prepei na didaxtei
+        int currentHours = 0; //poses wres vrika oti didaxtike
+        float score = 0;
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    for (int h = 0; h < maxHour; h++) {
+
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0 && !lessonsFound.contains(chromosome[c][s][d][h].getLesson())) { //an den einai null kai an den yparxei idi sth lista me ta found
+
+                            Lesson current = chromosome[c][s][d][h].getLesson();
+                            lessonsFound.add(current); //Found! Put it on the list.
+
+                            maxCurrentHours = current.getWeekHours() * 3;
+
+                            //p.x. c=0 , kai gia ta 3 tmimata, poses wres exw apo auto to mathima?
+
+                            for (h = h + 1; h < maxHour-1; h++) { //psakse tin upoloipi mera
+                                if (chromosome[c][s][d][h].getLesson().getId() > 0 && chromosome[c][s][d][h].getLesson() == current ) { //an den einai null kai einai idio me auto pou psaxnw
+                                    currentHours++;
+                                }
+                            }
+
+                            for (d = d+1; d < maxDay-1; d++) { //psakse olh thn upoloipi evdomada tou tmimatos
+                                for (h = 0; h < maxHour; h++) {
+                                    if (chromosome[c][s][d][h].getLesson().getId() > 0 && chromosome[c][s][d][h].getLesson() == current ) { //an den einai null kai einai idio me auto pou psaxnw
+                                        currentHours++;
+                                    }
+                                }
+                            }
+
+                            if (s < 2) { //an eimai sto teleutaio tmima, den exei alla na eksetasw
+                                for (s = s + 1; s < maxSubClasses - 1; s++) { //psakse ola ta upoloipa tmimata
+                                    for (d = 0; d < maxDay; d++) {
+                                        for (h = 0; h < maxHour; h++) {
+                                            if (chromosome[c][s][d][h].getLesson().getId() > 0 && chromosome[c][s][d][h].getLesson() == current) { //an den einai null kai einai idio me auto pou psaxnw
+                                                currentHours++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }//end if
+                        score = score + (float)(maxCurrentHours - currentHours) / maxCurrentHours; //athroise ola ta score twn mathimatwn ths taksis (kai gia ta 3 tmimata)
+                    }
+                }
+            }
+            //allazw taksi
+        }//end for
+        score = Math.round(score * 100); //teliko score olou tou programmatos kai gia tis 3 takseis.
+        return (int)score;
+    }
+
+    //3rd must Constraint of lessons.txt file
+    private int calculateAllLessonsTeached (HashMap<Integer,Lesson> allLessons) {
+        /**
+         * all lessons in txt file must be teached.
+         * If a lesson in allLessons doesn't exist in my program, then score++ ! The greater the score is, the worse the situation is.
+         */
+
+        int score = 0;
+        ArrayList<Lesson> teachedLessons = new ArrayList<>();
+
+        for (int c = 0; c < maxClasses; c++) {
+            for (int s = 0; s < maxSubClasses; s++) {
+                for (int d = 0; d < maxDay; d++) {
+                    for (int h = 0; h < maxHour; h++) {
+                        if (chromosome[c][s][d][h].getLesson().getId() > 0) { //an den einai null
+                            if (allLessons.containsValue(chromosome[c][s][d][h].getLesson())) {
+                                allLessons.remove(chromosome[c][s][d][h].getLesson().getId());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //exw afairesei apo thn lista allLessons ola ta mathimata pou vrika sto programma. Posa exoun meinei mesa? auto einai kai to score mou
+        score = allLessons.size();
+        //TODO an exoun meinei mesa p.x. 5 mathimata tha exw score=5. prepei na to kanoume *100 klp?
+        return score;
+    }
+
     private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
                                                            Lesson lesson) {
         if (lesson.getId()>0) {
@@ -403,24 +578,10 @@ public class Chromosome {
     }
 
 
-    //public Chromosome mutate() { return new Chromosome(); }
-
-    public Gene[][][][] getGenes () {
-        return this.chromosome;
+    public void mutate() {
+        //TODO
     }
 
-    //TODO: is needed?
-    public void setChromosome (Gene[][][][] genesList) {
-        this.chromosome = genesList;
-    }
-
-    public int getFitness() {
-        return fitness;
-    }
-
-    public void setFitness(int fitness) {
-        this.fitness = fitness;
-    }
 
     @Override
     public String toString() {
@@ -450,5 +611,5 @@ public class Chromosome {
         str = stringBuilder.toString();
         return str;
     }
-}
 
+}
