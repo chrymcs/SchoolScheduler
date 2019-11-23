@@ -2,6 +2,7 @@ import io.Exporter;
 import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
+import search.Chromosome;
 import search.Gene;
 import search.Genetic;
 import java.util.HashMap;
@@ -35,13 +36,10 @@ public class Main {
 
         Genetic genetic = new Genetic(lessons, teachers, genes);
 
-        genetic.initializePopulation(5);
-
-        Exporter.createExcelOutput(genetic.getPopulation().get(0).toString());
-        //genetic.getPopulation().get(0).calculateUnevenDistributedHoursPerLesson();
+        Chromosome solution = genetic.start(5, 0.1, 100, 1000);
+        Exporter.createExcelOutput(solution.toString());
 
 
-        //random values for testing
-        //Chromosome solution = genetic.start(100, 0.1, 1, 1000);
+
     }
 }

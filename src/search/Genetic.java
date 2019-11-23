@@ -37,11 +37,11 @@ public class Genetic {
     /**
      * @param populationSize: The size of the population in every step
      * @param mutationProbability: The propability a mutation might occur in a chromosome
-     * @param minimumFitness: The minimum fitness value of the solution we wish to find
+     * @param maximumFitness: The maximum fitness value of the solution we wish to find
      * @param maximumSteps: The maximum number of steps we will search for a solution
      */
 
-    public Chromosome start (int populationSize, double mutationProbability, int minimumFitness,
+    public Chromosome start (int populationSize, double mutationProbability, int maximumFitness,
                        int maximumSteps) {
 
         //TODO. O parakatw kwdikas einai tou lab3
@@ -71,8 +71,9 @@ public class Genetic {
                 Chromosome y = this.population.get(yIndex);
 
                 //We generate the children of the two chromosomes.
-                Chromosome child1 = this.reproduce(x,y).child1;
-                Chromosome child2 = this.reproduce(x,y).child2;
+                Offspring children = this.reproduce(x,y);
+                Chromosome child1 = children.child1;
+                Chromosome child2 = children.child2;
 
                 //We might then mutate one of the children or both of them (or none).
                 if(r.nextDouble() < mutationProbability)
@@ -90,10 +91,10 @@ public class Genetic {
 
             //TODO apo edw kai katw prepei na doume ligo ta fitness mas. Se emas oso megalutero einai to fitness, toso xeirotera!
 
-            //We sort the population so the one with the greater fitness is first
+            //We sort the population so the one with the minimum fitness is first
             this.population.sort(Collections.reverseOrder());
             //If the chromosome with the best fitness is acceptable we return it
-            if(this.population.get(0).getFitness() >= minimumFitness)
+            if(this.population.get(0).getFitness() <= maximumFitness)
             {
                 System.out.println("Finished after " + step + " steps...");
                 return this.population.get(0);
@@ -117,16 +118,17 @@ public class Genetic {
         this.updateFitnessBounds();
     }
 
+    //Updates the arraylist that contains indexes of the chromosomes in the population ArrayList
     private void updateFitnessBounds () {
         this.fitnessBounds = new ArrayList<Integer>();
         for (int i=0; i<this.population.size(); i++)
         {
             for(int j=0; j<this.population.get(i).getFitness(); j++)
             {
-                //TODO nai alla se emas oso megalwnai to fitness, toso xeirotera einai! de theloume na dialeksei to xeirotero.S
+                //TODO nai alla se emas oso megalwnai to fitness, toso xeirotera einai! de theloume na dialeksei to xeirotero.
                 //Each chromosome index exists in the ArrayList as many times as its fitness score
                 //By creating this ArrayList so, and choosing a random index from it,
-                //the greater the fitness score of a chromosome the greater chance it will be chosen.
+                //the MINIMUM the fitness score of a chromosome the greater chance it will be chosen.
                 fitnessBounds.add(i);
             }
         }
