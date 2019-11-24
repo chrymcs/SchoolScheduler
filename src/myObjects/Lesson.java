@@ -20,8 +20,6 @@ public class Lesson {
         this.weekHours = weekHours;
     }
 
-
-
 // Setters - Getters
 
     public int getId() {

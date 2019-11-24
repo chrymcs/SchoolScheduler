@@ -26,7 +26,6 @@ public class Genetic {
 
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Integer,Teacher> allTeachers;
-    private LinkedList<Gene> genes;
 
     private ArrayList<Lesson> lA;
     private ArrayList<Lesson> lB;

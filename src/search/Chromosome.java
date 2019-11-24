@@ -15,8 +15,7 @@ public class Chromosome implements Comparable<Chromosome> {
     private int maxClasses = 3, maxDay = 5, maxHour = 7, maxSubClasses = 3;
     private int fitness;
     private int subClassesGapsScore, consecutiveTeachersScore, unevenHoursScore,
-                teachersEvenHours, acceptableTeachersHours, acceptableLessonsClass,
-                acceptableLessonsHours, uneven;
+                teachersEvenHours, acceptableTeachersHours, acceptableLessonsHours, unevenDistributedHoursPerLesson;
 
 
     private HashMap<Integer,Teacher> allTeachers;
@@ -125,7 +124,7 @@ public class Chromosome implements Comparable<Chromosome> {
         unevenHoursScore = calculateUnevenHoursScore();
 
         //#4
-        uneven = calcConstFour();
+        unevenDistributedHoursPerLesson = calcUnevenDistributedHoursPerLesson();
 
         //#5
         teachersEvenHours = calculateTeachersEvenHours();
@@ -138,10 +137,9 @@ public class Chromosome implements Comparable<Chromosome> {
         fitness = subClassesGapsScore
                 + consecutiveTeachersScore
                 + unevenHoursScore
-                + uneven
+                + unevenDistributedHoursPerLesson
                 + teachersEvenHours
                 + acceptableTeachersHours
-                //+ acceptableLessonsClass
                 + acceptableLessonsHours;
 
         fitness = fitness / 7;
@@ -266,7 +264,7 @@ public class Chromosome implements Comparable<Chromosome> {
  *      κατά το δυνατόν ομοιόμορφα κατανεμημένες σε όλες τις ημέρες της εβδομάδας
  *      (π.χ. να μη διδάσκονται όλες οι ώρες του μαθήματος την ίδια ημέρα).
  */
-    private int calcConstFour () {
+    private int calcUnevenDistributedHoursPerLesson() {
 
         //kathe fora pou vriskw to mathima mesa sth mera, auksanw kata 1 to sumPerLess
         int sumPerLess = 0;
@@ -316,7 +314,7 @@ public class Chromosome implements Comparable<Chromosome> {
                     teacherB = allTeachers.get(teacherIdB);
                     totalComparisons++;
                     if (Math.abs(assignedTeachers.getOrDefault(teacherA,0)
-                            - assignedTeachers.getOrDefault(teacherB,0)) > 5) {
+                            - assignedTeachers.getOrDefault(teacherB,0)) > 10) {
                         problematicComparisons++;
                     }
                 }
@@ -366,9 +364,7 @@ public class Chromosome implements Comparable<Chromosome> {
                 // or (2) our list that keeps all maximum hours of all teachers does not have that
                 // teacher
                 // then put today's' hours in the teacher's maxHour value
-                if ( (teachersMaxDayHours.containsKey(t)
-                        &&  teachersMaxDayHours.get(t) < teachersDayHours.get(t) )
-                        || !teachersMaxDayHours.containsKey(t) ) {
+                if (!teachersMaxDayHours.containsKey(t) || teachersMaxDayHours.get(t) < teachersDayHours.get(t)) {
 
                     teachersMaxDayHours.put(t, teachersDayHours.get(t));
                 }
@@ -402,45 +398,7 @@ public class Chromosome implements Comparable<Chromosome> {
         return (int) overallScore;
     }
 
-    //1st must Constraint of lessons.txt file
-    private int calculateAcceptableLessonsClass() {
-
-        /**
-         * a classA lesson have to be teached only in class A. Same constraint for classes B and C.
-         * */
-        int wrongClass = 0;
-        int maxWrongClass = 35 * 3 * 3;
-        //35 hours (5 * 7) in a week where all subclasses of the classes have 'wrong' lesson
-        float score;
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay; d++) {
-                    for (int h = 0; h < maxHour; h++) {
-
-                        //if lesson's id indicates that is not a null lesson (-1) then..
-                        if (chromosome[c][s][d][h].getLesson().getId() > 0) {
-
-                            String grade = chromosome[c][s][d][h].getLesson().getClassGrade();
-
-                            //an vrika mathima tis taksis A se allh taksi, tote exw provlima.
-                            if (grade.equals("A") && c != 0) {
-                                wrongClass++;
-                            } else if (grade.equals("B") && c != 1) {
-                                wrongClass++;
-                            } else if (grade.equals("C") && c != 2) {
-                                wrongClass++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        score = (float) (maxWrongClass - wrongClass) / maxWrongClass;
-        score = Math.round(score * 100);
-        return (int) score;
-    }
-
-    //2nd must Constraint of lessons.txt file
+    //Must Constraint of lessons.txt file
     private int calculateAcceptableLessonsHours () {
 
         /**
@@ -450,7 +408,7 @@ public class Chromosome implements Comparable<Chromosome> {
 
         Lesson lesson;
         int previousWeekHours;
-        HashMap<Lesson,Integer> lessonsWeekHours;
+        HashMap<Lesson,Integer> lessonsWeekHours; //krataei to mathima pou vrike kai poses wres auto exei didaxtei
         float overallScore = 0;
 
         for (int c = 0; c < maxClasses; c++) {
@@ -466,8 +424,10 @@ public class Chromosome implements Comparable<Chromosome> {
                         }
                     }
                 }
-                //Comparing of the hours of the teachers that were assigned to the hours that could teach
-                //Per week
+                //gia kathe tmima, afou exoume vrei k exoume kratisei tis wres kathe mathimatos se mia lista,
+                //pame k vriskoume apo tis sunolikes wres pou eprepe na didaxtoun se auto to mathima tis taksis an tairiazoun oi wres.
+
+                //ola ta mathimata ths taksis prepei na didaxtoun
 
                 int notProperlyTaughtLessons = 0;
                 int totalLessons = 0;
@@ -554,7 +514,7 @@ public class Chromosome implements Comparable<Chromosome> {
         System.out.println("#1: " + subClassesGapsScore);
         System.out.println("#2: " + consecutiveTeachersScore);
         System.out.println("#3: " + unevenHoursScore);
-        System.out.println("#4: " + uneven);
+        System.out.println("#4: " + unevenDistributedHoursPerLesson);
         System.out.println("#5: " + teachersEvenHours);
         System.out.println();
         System.out.println("Teachers' hours: " + acceptableTeachersHours);

@@ -24,8 +24,6 @@ public class Main {
         ArrayList<Lesson> lB = new ArrayList<>(); //arraylist to save lessons of class B
         ArrayList<Lesson> lC = new ArrayList<>(); //arraylist to save lessons of class C
 
-        LinkedList<Gene> genes = new LinkedList<>(); //TODO delete
-
         try {
             lessons = importer.readLessonsFile(args[0]);
             teachers = importer.readTeachersFile(args[1]);
@@ -42,8 +40,6 @@ public class Main {
         for (Map.Entry pair: teachers.entrySet())
             System.out.println(pair.getKey() + ": " + pair.getValue());*/
 
-        int nullGenes = 5;
-
         //Fill lA,lB and lC arraylists
         if (lessons != null && teachers != null) {
             for (Map.Entry pair: lessons.entrySet()) {
@@ -52,7 +48,6 @@ public class Main {
                 else if(l.getClassGrade().equalsIgnoreCase("B")) lB.add(l);
                 else lC.add(l);
             }
-            //genes = Gene.allPossibleGenes(lessons,teachers,nullGenes);
         }
 
         //fill available teachers
@@ -65,7 +60,6 @@ public class Main {
                 }
             }
         }
-
 
         Genetic genetic = new Genetic(lessons, teachers, lA, lB, lC);
         Chromosome solution = genetic.start(1000, 0.5, 99, 1000);
