@@ -28,7 +28,6 @@ public class Chromosome implements Comparable<Chromosome> {
 
 
     /** CONSTRUCTORS */
-
     public Chromosome (Gene[][][][] childChromosome,
                        LinkedList<Gene> genesList,
                        HashMap<Integer,Teacher> teacherHashMap,
@@ -109,24 +108,25 @@ public class Chromosome implements Comparable<Chromosome> {
     //calculate total fitness
     private void calculateFitness() {
         //#1
-        subClassesGapsScore = calculateGapsScore();
+       //subClassesGapsScore = calculateGapsScore();
         //#2
-        consecutiveTeachersScore = calculateConsecutiveTeachersScore();
+        //consecutiveTeachersScore = calculateConsecutiveTeachersScore();
         //#3
-        unevenHoursScore = calculateUnevenHoursScore();
+        //unevenHoursScore = calculateUnevenHoursScore();
 
         //#4
+        int uneven = calcConstFour();
 
         //#5
-        teachersEvenHours = calculateTeachersEvenHours();
+       // teachersEvenHours = calculateTeachersEvenHours();
 
         //Must
-        acceptableTeachersHours = calculateAcceptableTeachersHours();
-        acceptableLessonsClass = calculateAcceptableLessonsClass();
-        acceptableLessonsHours = calculateAcceptableLessonsHours();
+        //acceptableTeachersHours = calculateAcceptableTeachersHours();
+        //acceptableLessonsClass = calculateAcceptableLessonsClass();
+        //acceptableLessonsHours = calculateAcceptableLessonsHours();
         //acceptableLessonsTaught = calculateAllLessonsTaught(allLessons);
 
-        fitness = subClassesGapsScore
+        /*fitness = subClassesGapsScore
                 + consecutiveTeachersScore
                 + unevenHoursScore
 
@@ -136,8 +136,9 @@ public class Chromosome implements Comparable<Chromosome> {
                 + acceptableLessonsClass
                 + acceptableLessonsHours;
 
-        fitness = fitness / 7;
-        //fitness = teachersEvenHours;
+        fitness = fitness / 7;*/
+
+        fitness = uneven;
     }
 
     //Constraint #1 - works!!!
@@ -254,7 +255,14 @@ public class Chromosome implements Comparable<Chromosome> {
         return (int) temp;
     }
 
-    //Constraint #4 //TODO
+
+
+/** #4 : Οι ώρες διδασκαλίας κάθε μαθήματος σε ένα τμήμα να είναι
+ *      κατά το δυνατόν ομοιόμορφα κατανεμημένες σε όλες τις ημέρες της εβδομάδας
+ *      (π.χ. να μη διδάσκονται όλες οι ώρες του μαθήματος την ίδια ημέρα).
+ */
+
+   /* //Constraint #4 //TODO
     public int calculateUnevenDistributedHoursPerLesson() {
 
         Lesson currentLesson; //poio mathima eksetazw kathe fora
@@ -360,7 +368,46 @@ public class Chromosome implements Comparable<Chromosome> {
         }
         //an yparxei to  mathima mhn kaneis tipota giati ta exeis metrisei ola idi parapanw
         return lesshoursPerDay;
+    }*/
+
+    private int calcConstFour () {
+
+        //kathe fora pou vriskw to mathima mesa sth mera, auksanw kata 1 to sumPerLess
+        int sumPerLess = 0;
+        int totalSum = 0;
+        //int sumPerClassPerLess = 0;
+
+        int cc = 0;
+
+        for (Map.Entry pair: allLessons.entrySet()) {
+            Lesson l = (Lesson) pair.getValue();
+
+            if (l.getClassGrade().equalsIgnoreCase("A")) cc = 0;
+            else if (l.getClassGrade().equalsIgnoreCase("B")) cc = 1;
+            else cc = 2;
+
+            //sumPerClassPerLess = 0;
+
+            for (int s = 0; s < maxSubClasses; s++) {
+                sumPerLess = 0;
+                for (int d = 0; d < maxDay; d++) {
+                    for (int h = 0; h < maxHour; h++) {
+                        if (chromosome[cc][s][d][h].getLesson() == l) {
+                            sumPerLess++;
+                            break;
+                        }
+                    }
+                }
+                //sumPerClassPerLess += (sumPerLess / 5.0) * 100;
+                totalSum += (sumPerLess / 5.0) * 100;
+            }
+            //System.out.println(l + "\nSCORE: " + sumPerClassPerLess / 3.0);
+        }
+
+        return totalSum / allLessons.size();
     }
+
+
 
     //Constraint #5
     private int calculateTeachersEvenHours () {
@@ -589,6 +636,7 @@ public class Chromosome implements Comparable<Chromosome> {
         int d = r.nextInt(5);
         int h = r.nextInt(7);
 
+        //change a random gene in the chromosome
         int upperRandomLimit = allGenes.size();
         Gene gene = allGenes.get(r.nextInt(upperRandomLimit));
         chromosome[c][s][d][h] = gene;

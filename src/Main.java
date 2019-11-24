@@ -7,14 +7,15 @@ import search.Gene;
 import search.Genetic;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) {
 
         Importer importer = new Importer();
-        HashMap<Integer ,Lesson> lessons = null;
-        HashMap<Integer ,Teacher> teachers = null;
+        HashMap<Integer, Lesson> lessons = null;
+        HashMap<Integer, Teacher> teachers = null;
 
         LinkedList<Gene> genes = new LinkedList<>();
 
@@ -26,6 +27,14 @@ public class Main {
             System.err.println("The arguments should be: \" ./data/lessons.txt ./data/teachers.txt \"");
         }
 
+       /* assert lessons != null;
+        for (Map.Entry pair: lessons.entrySet())
+            System.out.println(pair.getKey() + ": " + pair.getValue());
+
+        assert teachers != null;
+        for (Map.Entry pair: teachers.entrySet())
+            System.out.println(pair.getKey() + ": " + pair.getValue());*/
+
         int nullGenes = 5;
 
         if (lessons!=null && teachers!=null) {
@@ -34,7 +43,7 @@ public class Main {
 
 
         Genetic genetic = new Genetic(lessons, teachers, genes);
-        Chromosome solution = genetic.start(10000, 0.1,
+        Chromosome solution = genetic.start(1000, 0.1,
                                     99, 1000);
         Exporter.createExcelOutput(solution.toString());
 
