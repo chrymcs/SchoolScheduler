@@ -3,19 +3,17 @@ import myObjects.Lesson;
 import io.Importer;
 import myObjects.Teacher;
 import search.Chromosome;
-import search.Gene;
 import search.Genetic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Importer importer = new Importer(); //object to call readLessonsFile() and readTeachersFile()
+        Importer importer = new Importer(); //Importer object to call readLessonsFile() and readTeachersFile()
 
         HashMap<Integer, Lesson> lessons = null; //hashmap to save all lessons
         HashMap<Integer, Teacher> teachers = null; //hashmap to save all teachers
@@ -68,9 +66,9 @@ public class Main {
             }
         }
 
-
+        //let's go!
         Genetic genetic = new Genetic(lessons, teachers, lA, lB, lC);
-        Chromosome solution = genetic.start(1000, 0.5, 999, 10000);
+        Chromosome solution = genetic.start(100, 0.7, 98, 1000);
         Exporter.createExcelOutput(solution.toString());
 
     }
