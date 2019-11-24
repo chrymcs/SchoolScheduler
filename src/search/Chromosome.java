@@ -1,6 +1,5 @@
 package search;
 
-//import com.sun.source.tree.ArrayAccessTree;
 import myObjects.Lesson;
 import myObjects.Teacher;
 
@@ -17,7 +16,7 @@ public class Chromosome implements Comparable<Chromosome> {
     private int fitness;
     private int subClassesGapsScore, consecutiveTeachersScore, unevenHoursScore,
                 teachersEvenHours, acceptableTeachersHours, acceptableLessonsClass,
-                acceptableLessonsHours, acceptableLessonsTaught;
+                acceptableLessonsHours, uneven;
 
 
     private LinkedList<Gene> allGenes;
@@ -108,37 +107,33 @@ public class Chromosome implements Comparable<Chromosome> {
     //calculate total fitness
     private void calculateFitness() {
         //#1
-       //subClassesGapsScore = calculateGapsScore();
+       subClassesGapsScore = calculateGapsScore();
         //#2
-        //consecutiveTeachersScore = calculateConsecutiveTeachersScore();
+        consecutiveTeachersScore = calculateConsecutiveTeachersScore();
         //#3
-        //unevenHoursScore = calculateUnevenHoursScore();
+        unevenHoursScore = calculateUnevenHoursScore();
 
         //#4
-        int uneven = calcConstFour();
+        uneven = calcConstFour();
 
         //#5
-       // teachersEvenHours = calculateTeachersEvenHours();
+        teachersEvenHours = calculateTeachersEvenHours();
 
         //Must
-        //acceptableTeachersHours = calculateAcceptableTeachersHours();
-        //acceptableLessonsClass = calculateAcceptableLessonsClass();
-        //acceptableLessonsHours = calculateAcceptableLessonsHours();
-        //acceptableLessonsTaught = calculateAllLessonsTaught(allLessons);
+        acceptableTeachersHours = calculateAcceptableTeachersHours();
+        acceptableLessonsClass = calculateAcceptableLessonsClass();
+        acceptableLessonsHours = calculateAcceptableLessonsHours();
 
-        /*fitness = subClassesGapsScore
+        fitness = subClassesGapsScore
                 + consecutiveTeachersScore
                 + unevenHoursScore
-
+                + uneven
                 + teachersEvenHours
-
                 + acceptableTeachersHours
                 + acceptableLessonsClass
                 + acceptableLessonsHours;
 
-        fitness = fitness / 7;*/
-
-        fitness = uneven;
+        fitness = fitness / 8;
     }
 
     //Constraint #1 - works!!!
@@ -256,126 +251,15 @@ public class Chromosome implements Comparable<Chromosome> {
     }
 
 
-
 /** #4 : Οι ώρες διδασκαλίας κάθε μαθήματος σε ένα τμήμα να είναι
  *      κατά το δυνατόν ομοιόμορφα κατανεμημένες σε όλες τις ημέρες της εβδομάδας
  *      (π.χ. να μη διδάσκονται όλες οι ώρες του μαθήματος την ίδια ημέρα).
  */
-
-   /* //Constraint #4 //TODO
-    public int calculateUnevenDistributedHoursPerLesson() {
-
-        Lesson currentLesson; //poio mathima eksetazw kathe fora
-
-        ArrayList<Lesson> lessonsPerWeek = new ArrayList<Lesson>();
-        //ola ta mathimata ths evdomadas (uparxei 1 fora to kathena edw)
-
-        ArrayList<Integer> lesshoursPerDay = new ArrayList<Integer>();
-        //pinakas pou krataei ola ta hoursperday enos mathimatos. diladi krataei 5 hoursPerDay, ena gia kathe mera.
-
-        int maxEvenHoursScore = 42; //Worst case scenario
-
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay; d++) {
-                    for (int h = 0; h < maxHour; h++) {
-                        if (chromosome[c][s][d][h].getLesson().getId() > 0) { //an den einai null
-
-                            currentLesson = chromosome[c][s][d][h].getLesson();
-                            lesshoursPerDay = weekLessons(c, s, d, h, lessonsPerWeek, currentLesson); //gemizei ton lessonsPerWeek[] & epistrefei gia to sugekrimeno chromosome, mia arraylist me 5 theseis. kathe thesh antistoixei se 1 mera kai deixnei poses wres didasketai to mathima.
-
-                            //upologizw gia kathe mathima enos programmatos pws einai katanemimeno mesa sth vdomada k paragw to parakatw score
-                            int evenHoursScore = calcLessonsEvenHours(lesshoursPerDay, maxEvenHoursScore);
-                        }
-                    }
-                }
-
-                //System.out.println(evenHoursScore);
-            }
-        }
-        return 0;
-    }
-
-    //Secondary method for Constraint #4
-    private int calcLessonsEvenHours (ArrayList<Integer> lesshoursPerDay, int maxScore) {
-        float temp;
-        int evenHoursScore = 0;
-
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay - 1; d++) {
-                    for (int nextDay = d+1; nextDay < maxDay; nextDay++) {
-                        evenHoursScore = evenHoursScore +
-                                Math.abs(lesshoursPerDay.get(d) - lesshoursPerDay.get(nextDay));
-                    }
-                }
-            }
-        }
-        temp = (float) (maxScore - evenHoursScore) / maxScore;
-        temp = Math.round(temp * 100);
-        temp = Math.abs(temp);
-        return (int) temp;
-    }
-
-    // method for Constraint #4
-    private ArrayList<Integer> weekLessons (int c, int s, int d, int h,
-                                            ArrayList<Lesson> lessonsPerWeek,
-                                            Lesson currentLesson) {
-
-        int dayHours;
-        ArrayList<Integer> lesshoursPerDay = new ArrayList<Integer>(); //pinakas pou krataei ola ta hoursperday enos mathimatos. diladi krataei 5 hoursPerDay, ena gia kathe mera.
-
-        //TODO otan tha paw sto tmima p.x. A2, proigoumenws tha exw eksetasei to tmima A1 kai tha exw vrei p.x. MathimatikaA. Sto A2 tha ksanavrw MathimatikaA alla de tha kanei tipota giati uparxei idi sto lessonsPerWeek.
-
-        if (!lessonsPerWeek.contains(currentLesson)) { //an den yparxei, valto kai pigaine vres ta ola mesa sti vdomada
-            lessonsPerWeek.add(currentLesson);
-            dayHours = 1;
-
-            if (d==1) { //vrika 1h fora to mathima thn Trith.
-                lesshoursPerDay.add(0); //prepei na valw mia midenikh timh gia th deutera
-            }
-            else if (d==2) { //tetarth
-                lesshoursPerDay.add(0);
-                lesshoursPerDay.add(0);
-            }
-            else if (d==3) { //pempth
-                lesshoursPerDay.add(0);
-                lesshoursPerDay.add(0);
-                lesshoursPerDay.add(0);
-            }
-
-            if (h<maxHour-1) {
-                for (h = h + 1; h < maxHour; h++) {
-                    if (chromosome[c][s][d][h].getLesson() == currentLesson) {
-                        dayHours++;
-                    }
-                }
-            }
-
-            lesshoursPerDay.add(dayHours); //vale tis wres tou mathimatos tis 1hs hmeras ston pinaka
-
-            if (d<maxDay-1) {
-                for (d = d + 1; d < maxDay; d++) {
-                    dayHours = 0; //allazw mera ara midenise tes
-                    for (h = 0; h < maxHour; h++) {
-                        if (chromosome[c][s][d][h].getLesson() == currentLesson) {
-                            dayHours++;
-                        }
-                    }
-                    lesshoursPerDay.add(dayHours);
-                }
-            }
-        }
-        //an yparxei to  mathima mhn kaneis tipota giati ta exeis metrisei ola idi parapanw
-        return lesshoursPerDay;
-    }*/
-
     private int calcConstFour () {
 
         //kathe fora pou vriskw to mathima mesa sth mera, auksanw kata 1 to sumPerLess
         int sumPerLess = 0;
         int totalSum = 0;
-        //int sumPerClassPerLess = 0;
 
         int cc = 0;
 
@@ -385,8 +269,6 @@ public class Chromosome implements Comparable<Chromosome> {
             if (l.getClassGrade().equalsIgnoreCase("A")) cc = 0;
             else if (l.getClassGrade().equalsIgnoreCase("B")) cc = 1;
             else cc = 2;
-
-            //sumPerClassPerLess = 0;
 
             for (int s = 0; s < maxSubClasses; s++) {
                 sumPerLess = 0;
@@ -398,15 +280,13 @@ public class Chromosome implements Comparable<Chromosome> {
                         }
                     }
                 }
-                //sumPerClassPerLess += (sumPerLess / 5.0) * 100;
                 totalSum += (sumPerLess / 5.0) * 100;
             }
-            //System.out.println(l + "\nSCORE: " + sumPerClassPerLess / 3.0);
         }
-
-        return totalSum / allLessons.size();
+        int temp = totalSum / allLessons.size();
+        if (temp > 100) temp =100;
+        return temp;
     }
-
 
 
     //Constraint #5
@@ -648,7 +528,7 @@ public class Chromosome implements Comparable<Chromosome> {
         System.out.println("#1: " + subClassesGapsScore);
         System.out.println("#2: " + consecutiveTeachersScore);
         System.out.println("#3: " + unevenHoursScore);
-        System.out.println("#4: " + 0 );
+        System.out.println("#4: " + uneven);
         System.out.println("#5: " + teachersEvenHours);
         System.out.println();
         System.out.println("Teachers' hours: " + acceptableTeachersHours);
