@@ -25,6 +25,10 @@ public class Importer {
 
         // Lessons
         while ((str = br.readLine()) != null) { //loop for each line in text.
+
+            // ignore blank lines
+            if (str.matches("\\s*")) continue;
+
             Lesson lesson = new Lesson(); // id - title - classGrade - hoursPerWeek
             String[] line = str.split("\\s+");
 
@@ -60,6 +64,10 @@ public class Importer {
         String str;
 
         while ((str = br.readLine()) != null) {
+
+                // ignore blank lines
+                if (str.matches("\\s*")) continue;
+
                 Teacher teacher = new Teacher();
                 String [] line = str.split("\\s+");
 
