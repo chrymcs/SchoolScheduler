@@ -1,5 +1,9 @@
 package io;
 
+/**
+ * used libraries commons.io , commons.math , poi
+ */
+
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -36,7 +40,7 @@ public class Exporter {
             }
         }
 
-        //Schedule.xls must be outputed in any Desktop
+        //Schedule.xls must be outputted to any Desktop
        File desktopDir = new File(System.getProperty("user.home"), "Desktop");
 
         FileOutputStream fileOut;

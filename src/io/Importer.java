@@ -29,8 +29,9 @@ public class Importer {
             // ignore blank lines
             if (str.matches("\\s*")) continue;
 
-            Lesson lesson = new Lesson(); // id - title - classGrade - hoursPerWeek
-            String[] line = str.split("\\s+");
+            Lesson lesson = new Lesson();
+
+            String[] line = str.split("\\s+"); //split string by spaces
 
             lesson.setId(Integer.parseInt(line[0]));
             String temp = "";
@@ -63,13 +64,15 @@ public class Importer {
         HashMap<Integer ,Teacher> hashMap = new HashMap<>();
         String str;
 
-        while ((str = br.readLine()) != null) {
+        // Teachers
+        while ((str = br.readLine()) != null) { //loop for each line in text.
 
                 // ignore blank lines
                 if (str.matches("\\s*")) continue;
 
                 Teacher teacher = new Teacher();
-                String [] line = str.split("\\s+");
+
+                String [] line = str.split("\\s+"); //split string by spaces
 
                 teacher.setId(Integer.parseInt(line [0]));
                 String temp = "";
