@@ -20,7 +20,7 @@ public class Chromosome implements Comparable<Chromosome> {
                 acceptableLessonsHours, acceptableLessonsTaught;
 
 
-    LinkedList<Gene> allGenes;
+    private LinkedList<Gene> allGenes;
     private HashMap<Integer,Teacher> allTeachers;
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
@@ -36,12 +36,18 @@ public class Chromosome implements Comparable<Chromosome> {
         allGenes = genesList;
         allTeachers = teacherHashMap;
         allLessons = lessonHashMap;
+        Gene gene;
         chromosome = new Gene[maxClasses][maxSubClasses][maxDay][maxHour];
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 0; h < maxHour; h++) {
-                       chromosome[c][s][d][h] = childChromosome[c][s][d][h];
+                        gene = childChromosome[c][s][d][h];
+                        chromosome[c][s][d][h] = gene;
+                        assignedLessons = updateAssignedLessons(assignedLessons,
+                                gene.getLesson());
+                        assignedTeachers = updateAssignedTeachers(assignedTeachers,
+                                gene.getTeacher());
                     }
                 }
             }
@@ -73,7 +79,6 @@ public class Chromosome implements Comparable<Chromosome> {
                         //In each assignment og lesson-teacher combination the program keeps a
                         //record of the assigned teachers and lessons in order to be handled
                         //later on and during constraint #5
-                        // TODO: may change comment. Auta ta theloume?
                         assignedLessons = updateAssignedLessons(assignedLessons,
                                 gene.getLesson());
                         assignedTeachers = updateAssignedTeachers(assignedTeachers,
@@ -121,16 +126,18 @@ public class Chromosome implements Comparable<Chromosome> {
         acceptableLessonsHours = calculateAcceptableLessonsHours();
         //acceptableLessonsTaught = calculateAllLessonsTaught(allLessons);
 
-        fitness = subClassesGapsScore
-                + consecutiveTeachersScore
-                + unevenHoursScore
-
-                + teachersEvenHours
-                + acceptableTeachersHours
-                + acceptableLessonsClass
-                + acceptableLessonsHours;
-
-        fitness = fitness / 7;
+//        fitness = subClassesGapsScore
+//                + consecutiveTeachersScore
+//                + unevenHoursScore
+//
+//                + teachersEvenHours
+//
+//                + acceptableTeachersHours
+//                + acceptableLessonsClass
+//                + acceptableLessonsHours;
+//
+//        fitness = fitness / 7;
+        fitness = teachersEvenHours;
     }
 
     //Constraint #1 - works!!!
@@ -199,7 +206,7 @@ public class Chromosome implements Comparable<Chromosome> {
         return 0;
     }
 
-    //Constraint #3
+    //Constraint #3 - works!!!
     private int calculateUnevenHoursScore() {
         //total teaching hours
         int teachingHoursPerDay;
@@ -241,9 +248,9 @@ public class Chromosome implements Comparable<Chromosome> {
                 }
             }
         }
-        //TODO: ksereis
         temp = (float) (maxScore - evenHoursScore) / maxScore;
-        temp = Math.round(temp * 100);
+        temp = Math.round(temp * 100 * 10 / 9);
+        if (temp > 100) temp =100;
         return (int) temp;
     }
 
@@ -359,7 +366,9 @@ public class Chromosome implements Comparable<Chromosome> {
     private int calculateTeachersEvenHours () {
         Teacher teacherA;
         Teacher teacherB;
-        float difference = 0;
+        int problematicComparisons = 0;
+        int totalComparisons = 0;
+        float score;
         LinkedList<Integer> checkedIds = new LinkedList<>();
         for (int teacherIdA : allTeachers.keySet()) {
             checkedIds.add(teacherIdA);
@@ -367,14 +376,17 @@ public class Chromosome implements Comparable<Chromosome> {
                 if (teacherIdA != teacherIdB && !checkedIds.contains(teacherIdB)) {
                     teacherA = allTeachers.get(teacherIdA);
                     teacherB = allTeachers.get(teacherIdB);
-                    difference = difference +
-                            Math.abs(assignedTeachers.getOrDefault(teacherA,0)
-                                    - assignedTeachers.getOrDefault(teacherB,0));
+                    totalComparisons++;
+                    if (Math.abs(assignedTeachers.getOrDefault(teacherA,0)
+                            - assignedTeachers.getOrDefault(teacherB,0)) > 6) {
+                        problematicComparisons++;
+                    }
                 }
             }
         }
-        difference = difference / 100;
-        return Math.round(100-difference);
+        score = (float) (totalComparisons - problematicComparisons) / totalComparisons;
+        score = Math.round(score * 100);
+        return (int) score;
     }
 
     //Must Constraint of teachers.txt file
@@ -464,7 +476,7 @@ public class Chromosome implements Comparable<Chromosome> {
         float score;
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay - 1; d++) {
+                for (int d = 0; d < maxDay; d++) {
                     for (int h = 0; h < maxHour; h++) {
 
                         //if lesson's id indicates that is not a null lesson (-1) then..
@@ -473,11 +485,11 @@ public class Chromosome implements Comparable<Chromosome> {
                             String grade = chromosome[c][s][d][h].getLesson().getClassGrade();
 
                             //an vrika mathima tis taksis A se allh taksi, tote exw provlima.
-                            if (grade.equals("A") && s != 0) {
+                            if (grade.equals("A") && c != 0) {
                                 wrongClass++;
-                            } else if (grade.equals("B") && s != 1) {
+                            } else if (grade.equals("B") && c != 1) {
                                 wrongClass++;
-                            } else if (grade.equals("C") && s != 2) {
+                            } else if (grade.equals("C") && c != 2) {
                                 wrongClass++;
                             }
                         }
@@ -519,7 +531,7 @@ public class Chromosome implements Comparable<Chromosome> {
                 //Comparing of the hours of the teachers that were assigned to the hours that could teach
                 //Per week
 
-                int notProperlyTaughLessons = 0;
+                int notProperlyTaughtLessons = 0;
                 int totalLessons = 0;
                 for (int lessonId : allLessons.keySet()) {
                     if (lessonId > 0) {
@@ -530,50 +542,19 @@ public class Chromosome implements Comparable<Chromosome> {
                             totalLessons++;
                             if (lessonsWeekHours.containsKey(lesson) &&
                                 lessonsWeekHours.get(lesson) != lesson.getWeekHours()) {
-                                notProperlyTaughLessons++;
+                                notProperlyTaughtLessons++;
                             } else if (!lessonsWeekHours.containsKey(lesson)) {
-                                notProperlyTaughLessons++;
+                                notProperlyTaughtLessons++;
                             }
                         }
                     }
                 }
                 overallScore = overallScore +
-                        (float) (totalLessons - notProperlyTaughLessons) / totalLessons;
+                        (float) (totalLessons - notProperlyTaughtLessons) / totalLessons;
             }
         }
         overallScore = Math.abs(overallScore/9 *100);
-
         return (int) overallScore;
-
-    }
-
-    //3rd must Constraint of lessons.txt file
-    private int calculateAllLessonsTaught(HashMap<Integer,Lesson> lessonsHashMap) {
-        /**
-         * all lessons in txt file must be taught.
-         * If a lesson in allLessons doesn't exist in my program, then score++ ! The greater the score is, the worse the situation is.
-         */
-        float score = 0;
-        int totalLessons = allLessons.size();
-        HashMap<Integer,Lesson> allLessons = new HashMap<>(lessonsHashMap);
-        for (int c = 0; c < maxClasses; c++) {
-            for (int s = 0; s < maxSubClasses; s++) {
-                for (int d = 0; d < maxDay; d++) {
-                    for (int h = 0; h < maxHour; h++) {
-                        if (chromosome[c][s][d][h].getLesson().getId() > 0) { //an den einai null
-                            if (allLessons.containsValue(chromosome[c][s][d][h].getLesson())) {
-                                allLessons.remove(chromosome[c][s][d][h].getLesson().getId());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        //exw afairesei apo thn lista allLessons ola ta mathimata pou vrika sto programma.
-        // Posa exoun meinei mesa? auto einai kai to score mou
-        score = (float) (totalLessons - allLessons.size()) / totalLessons;
-        score = Math.round(score * 100);
-        return (int) score;
     }
 
     private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,

@@ -53,7 +53,7 @@ public class Genetic {
 
         Random r = new Random();
 
-        for(int step=0; step < maximumSteps; step++)
+        for (int step=0; step < maximumSteps; step++)
         {
             //Initialize the new generated population
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
@@ -61,7 +61,7 @@ public class Genetic {
             for(int i=0; i < populationSize / 2; i++) {
 
 
-                System.out.println("Step: " + step + " " + i);
+                //System.out.println("Step: " + step + " " + i);
 
                 //We choose two chromosomes from the population
                 //Due to how fitnessBounds ArrayList is generated, the propability of
@@ -81,25 +81,30 @@ public class Genetic {
                 Chromosome child2 = children.child2;
 
                 //We might then mutate one of the children or both of them (or none).
-                if(r.nextDouble() < mutationProbability)
-                {
-                    //TODO code mutate() method in Chromosome class
+                if(r.nextDouble() < mutationProbability) {
                     child1.mutate();
+                }
+
+                if(r.nextDouble() < mutationProbability) {
                     child2.mutate();
                 }
                 //...and finally add it to the new population
                 newPopulation.add(child1);
                 newPopulation.add(child2);
+            }
 
+            newPopulation.sort(Collections.reverseOrder());
+
+            //We keep 20% of the best fathers - chromosomes
+            // and the rest 80% is replaced by the best children
+            for (int i = newPopulation.size() - (2 * newPopulation.size() / 10) ;
+                        i < newPopulation.size() ; i++) {
+                newPopulation.set(i, population.remove(0));
             }
-            for (int i = 0; i < populationSize/2; i++) {
-                newPopulation.add(population.remove(0));
-            }
+
             this.population = newPopulation;
 
-            //TODO theloume na kratame kai tous kaluterous palious goneis.
-
-            //We sort the population so the one with the minimum fitness is first
+            //We sort the population so the one with the greatest fitness is first
             this.population.sort(Collections.reverseOrder());
             System.out.println("Fitness: " + this.population.get(0).getFitness());
             //If the chromosome with the best fitness is acceptable we return it
