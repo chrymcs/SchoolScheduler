@@ -50,6 +50,13 @@ public class Main {
             }
         }
 
+        //combination of null lesson with null teacher
+        Lesson l = new Lesson(-1, "NULL", null, 0);
+        lA.add(l);
+        lB.add(l);
+        lC.add(l);
+
+
         //fill available teachers
         if (lessons != null && teachers != null) {
             for (int lessonId : lessons.keySet()) {
@@ -60,6 +67,7 @@ public class Main {
                 }
             }
         }
+
 
         Genetic genetic = new Genetic(lessons, teachers, lA, lB, lC);
         Chromosome solution = genetic.start(1000, 0.5, 99, 1000);

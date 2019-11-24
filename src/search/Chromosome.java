@@ -58,20 +58,18 @@ public class Chromosome implements Comparable<Chromosome> {
 
         allTeachers = teacherHashMap;
         allLessons = lessonHashMap;
-        //this.totalLessonHoursNeeded = totalLessonHoursNeeded;
-        //this.hoursNeededPerClass = hoursNeededPerClass;
+
         Gene gene;
         Lesson lesson;
         Teacher teacher;
+        Teacher nullTeacher = new Teacher(-1, "NULL", null, 0, 0);
         this.chromosome = new Gene[3][3][5][7];
         Random r = new Random();
-        //int upperRandomLimit = genesList.size();
 
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
                 for (int d = 0; d < maxDay; d++) { //foreach day
                     for (int h = 0; h < maxHour  ; h++) { //foreach hour
-                        //gene = genesList.get(r.nextInt(upperRandomLimit));
 
                         if (c == 0)
                             lesson = lA.get(r.nextInt(lA.size()));
@@ -80,7 +78,12 @@ public class Chromosome implements Comparable<Chromosome> {
                         else
                             lesson = lC.get(r.nextInt(lC.size()));
 
-                        teacher = lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
+                        if (lesson.getId() == -1) {
+                            teacher = nullTeacher;
+                        }
+                        else {
+                            teacher = lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
+                        }
                         gene = new Gene(lesson, teacher);
                         this.chromosome[c][s][d][h] = gene;
 
@@ -131,7 +134,6 @@ public class Chromosome implements Comparable<Chromosome> {
 
         //Must
         acceptableTeachersHours = calculateAcceptableTeachersHours();
-        //acceptableLessonsClass = calculateAcceptableLessonsClass();
         acceptableLessonsHours = calculateAcceptableLessonsHours();
 
         fitness = subClassesGapsScore
@@ -452,9 +454,10 @@ public class Chromosome implements Comparable<Chromosome> {
             }
         }
         //Division with 9 subClasses
-        overallScore = Math.round(overallScore/9 *100);
+        overallScore = Math.round((overallScore/9) *100);
         return (int) overallScore;
     }
+
 
     private HashMap<Lesson,Integer> updateAssignedLessons (HashMap<Lesson,Integer> assignedLessons,
                                                            Lesson lesson) {

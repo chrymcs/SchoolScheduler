@@ -5,8 +5,6 @@ import myObjects.Teacher;
 
 /**
  * A gene is a lesson-teacher combination.
- * Based on the hypothesis declaration that no teacher can be assigned
- * to lessons that he is not eligible to teach.
 */
 public class Gene {
 
