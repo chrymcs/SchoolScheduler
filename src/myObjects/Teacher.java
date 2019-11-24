@@ -6,9 +6,9 @@ public class Teacher {
 
     private int id;
     private String name;
-    private LinkedList<Integer> lessons;
-    private int dayHours;
-    private int weekHours;
+    private LinkedList<Integer> lessons; //a teacher can teach a specific list of lessons
+    private int dayHours; //max hours per day
+    private int weekHours; //max hours per week
 
     public Teacher() { }
 
