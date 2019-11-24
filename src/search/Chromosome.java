@@ -114,21 +114,28 @@ public class Chromosome implements Comparable<Chromosome> {
         return fitness;
     }
 
+    public int getAcceptableLessonsHours () {
+        return acceptableLessonsHours;
+    }
+
+    public int getAcceptableTeachersHours () {
+        return acceptableTeachersHours;
+    }
+
 /** ------------------------------------------------------------------------------------------------------------------------------------------------ */
     /** CALCULATE FITNESS METHODS */
 
     //calculate total fitness
     private void calculateFitness() {
+
         //#1
-       subClassesGapsScore = calculateGapsScore();
+        subClassesGapsScore = calculateGapsScore();
         //#2
         consecutiveTeachersScore = calculateConsecutiveTeachersScore();
         //#3
         unevenHoursScore = calculateUnevenHoursScore();
-
         //#4
         unevenDistributedHoursPerLesson = calcUnevenDistributedHoursPerLesson();
-
         //#5
         teachersEvenHours = calculateTeachersEvenHours();
 
@@ -144,10 +151,13 @@ public class Chromosome implements Comparable<Chromosome> {
                 + acceptableTeachersHours
                 + acceptableLessonsHours;
 
-        fitness = fitness / 7;
+        fitness = fitness / 7; //(M.O.)
     }
 
-    //Constraint #1 - works!!!
+    /**
+     * Constraint #1 Να μην υπάρχουν κενά στο πρόγραμμα κανενός τμήματος.
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calculateGapsScore() {
         int gapsCounter = 0;
         float gapsScore; //total gap hours
@@ -177,7 +187,12 @@ public class Chromosome implements Comparable<Chromosome> {
         return (int) gapsScore;
     }
 
-    //Constraint #2 - works!!!
+    /**
+     * Constraint #2 Να μη διδάσκει κανένας καθηγητής περισσότερες από δύο συνεχόμενες ώρες
+     * (π.χ. αν κάποιος καθηγητής έχει μάθημα τρεις ώρες κάποια μέρα, να έχει τουλάχιστον
+     * μία κενή ώρα μεταξύ των πρώτων δύο ή μεταξύ των δύο τελευταίων ωρών).
+     */
+    // TODO sxolia mesa sth sunartisi
     public int calculateConsecutiveTeachersScore() {
         int consecutiveHours = 0;
         int consecutiveScore = 100;
@@ -205,7 +220,10 @@ public class Chromosome implements Comparable<Chromosome> {
         return consecutiveScore;
     }
 
-    //Secondary method for Constraint #2 - works!!!
+    /**
+     * Secondary method for Constraint #2
+     */
+    // TODO sxolia mesa sth sunartisi
     private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
         if (teacher_A == teacher_B && teacher_B == teacher_C && teacher_C != -1)  {
             return 1;
@@ -213,7 +231,12 @@ public class Chromosome implements Comparable<Chromosome> {
         return 0;
     }
 
-    //Constraint #3 - works!!!
+    /**
+     * Constraint #3 Ο ημερήσιος αριθμός ωρών διδασκαλίας κάθε τμήματος να είναι κατά το δυνατόν
+     * ομοιόμορφος όλες τις ημέρες (π.χ. όχι 4ωρο τη Δευτέρα, 7ωρο την Τρίτη, 3ωρο την Τετάρτη,
+     * 7ωρο Πέμπτη, 4ωρο Παρασκευή).
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calculateUnevenHoursScore() {
         //total teaching hours
         int teachingHoursPerDay;
@@ -240,7 +263,10 @@ public class Chromosome implements Comparable<Chromosome> {
         return evenHoursScore;
     }
 
-    //Secondary method for Constraint #3
+    /**
+     * Secondary method for Constraint #3
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
         float temp;
         int evenHoursScore = 0;
@@ -262,10 +288,11 @@ public class Chromosome implements Comparable<Chromosome> {
     }
 
 
-/** #4 : Οι ώρες διδασκαλίας κάθε μαθήματος σε ένα τμήμα να είναι
- *      κατά το δυνατόν ομοιόμορφα κατανεμημένες σε όλες τις ημέρες της εβδομάδας
- *      (π.χ. να μη διδάσκονται όλες οι ώρες του μαθήματος την ίδια ημέρα).
- */
+    /** Constraint #4 : Οι ώρες διδασκαλίας κάθε μαθήματος σε ένα τμήμα να είναι
+     *  κατά το δυνατόν ομοιόμορφα κατανεμημένες σε όλες τις ημέρες της εβδομάδας
+     *  (π.χ. να μη διδάσκονται όλες οι ώρες του μαθήματος την ίδια ημέρα).
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calcUnevenDistributedHoursPerLesson() {
 
         //kathe fora pou vriskw to mathima mesa sth mera, auksanw kata 1 to sumPerLess
@@ -299,8 +326,11 @@ public class Chromosome implements Comparable<Chromosome> {
         return temp;
     }
 
-
-    //Constraint #5
+    /**
+     * Constraint #5 Ο αριθμός ωρών διδασκαλίας ανά εβδομάδα να είναι κατά το δυνατόν ομοιόμορφος
+     * για όλους τους καθηγητές (π.χ. να μη διδάσκει ένας 25 ώρες την εβδομάδα και άλλος μόνο 5).
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calculateTeachersEvenHours () {
         Teacher teacherA;
         Teacher teacherB;
@@ -327,7 +357,10 @@ public class Chromosome implements Comparable<Chromosome> {
         return (int) score;
     }
 
-    //Must Constraint of teachers.txt file
+    /**
+     * Must Constraint of teachers.txt file
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calculateAcceptableTeachersHours () {
 
         //A list that will hold, each teacher's week hours of teaching
@@ -400,7 +433,10 @@ public class Chromosome implements Comparable<Chromosome> {
         return (int) overallScore;
     }
 
-    //Must Constraint of lessons.txt file
+    /**
+     * Must Constraint of lessons.txt file
+     */
+    // TODO sxolia mesa sth sunartisi
     private int calculateAcceptableLessonsHours () {
 
         /**
@@ -488,30 +524,34 @@ public class Chromosome implements Comparable<Chromosome> {
                         ArrayList<Lesson> lC) {
 
         Random r = new Random();
+
+        //Choose a random slot from the program and change it
+
         int c = r.nextInt(3); //0 - 1 - 2
         int s = r.nextInt(3);
         int d = r.nextInt(5);
         int h = r.nextInt(7);
 
-        //change a random gene in the chromosome
-        //int upperRandomLimit = allGenes.size();
-        //Gene gene = allGenes.get(r.nextInt(upperRandomLimit));
-
         Lesson lesson;
+
         Teacher nullTeacher = new Teacher(-1, "NULL", null, 0, 0);
+
         if (c == 0)
             lesson = lA.get(r.nextInt(lA.size()));
         else if (c == 1)
             lesson = lB.get(r.nextInt(lB.size()));
         else
             lesson = lC.get(r.nextInt(lC.size()));
+
         Teacher teacher;
-        if (lesson.getId() <0) {
+
+        if (lesson.getId() <0) { //if the lesson is Null, match it with a Null teacher
             teacher = nullTeacher;
-        } else {
+        } else { //choose a random teacher from availableTeachers who can teach the lesson
             teacher =
                 lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
         }
+
         Gene gene = new Gene(lesson, teacher);
 
         chromosome[c][s][d][h] = gene;
@@ -520,18 +560,18 @@ public class Chromosome implements Comparable<Chromosome> {
 }
 
     public void printDetailedFitness () {
-        System.out.println("#1: " + subClassesGapsScore);
-        System.out.println("#2: " + consecutiveTeachersScore);
-        System.out.println("#3: " + unevenHoursScore);
-        System.out.println("#4: " + unevenDistributedHoursPerLesson);
-        System.out.println("#5: " + teachersEvenHours);
+        System.out.println("Constraint #1: " + subClassesGapsScore);
+        System.out.println("Constraint #2: " + consecutiveTeachersScore);
+        System.out.println("Constraint #3: " + unevenHoursScore);
+        System.out.println("Constraint #4: " + unevenDistributedHoursPerLesson);
+        System.out.println("Constraint #5: " + teachersEvenHours);
         System.out.println();
-        System.out.println("Teachers' hours: " + acceptableTeachersHours);
-        System.out.println("Lessons' hours: " + acceptableLessonsHours);
+        System.out.println("Constraint of teachers.txt: " + acceptableTeachersHours);
+        System.out.println("Constraint of lessons.txt: " + acceptableLessonsHours);
     }
 
     @Override
-    public String toString() {
+    public String toString() { //the way the excel file (Schedule.xls) shows the final program
         StringBuilder stringBuilder = new StringBuilder();
         String str = "";
         for (int c = 0; c < maxClasses; c++) {
