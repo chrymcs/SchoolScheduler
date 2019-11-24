@@ -30,14 +30,6 @@ public class Main {
             System.err.println("The arguments should be: \" ./data/lessons.txt ./data/teachers.txt \"");
         }
 
-       /* assert lessons != null;
-        for (Map.Entry pair: lessons.entrySet())
-            System.out.println(pair.getKey() + ": " + pair.getValue());
-
-        assert teachers != null;
-        for (Map.Entry pair: teachers.entrySet())
-            System.out.println(pair.getKey() + ": " + pair.getValue());*/
-
         //Fill lA,lB and lC arraylists
         if (lessons != null && teachers != null) {
             for (Map.Entry pair: lessons.entrySet()) {
@@ -69,6 +61,7 @@ public class Main {
         //let's go!
         Genetic genetic = new Genetic(lessons, teachers, lA, lB, lC);
         Chromosome solution = genetic.start(100, 0.7, 98, 1000);
+        //Chromosome solution = genetic.start(20, 50, 700, 100000);
         Exporter.createExcelOutput(solution.toString());
 
     }

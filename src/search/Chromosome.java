@@ -25,6 +25,7 @@ public class Chromosome implements Comparable<Chromosome> {
 
 
     /** CONSTRUCTORS */
+    //Copy constructor for the children chromosomes
     public Chromosome (Gene[][][][] childChromosome,
                        HashMap<Integer,Teacher> teacherHashMap,
                        HashMap<Integer,Lesson> lessonHashMap) {
@@ -125,7 +126,8 @@ public class Chromosome implements Comparable<Chromosome> {
 /** ------------------------------------------------------------------------------------------------------------------------------------------------ */
     /** CALCULATE FITNESS METHODS */
 
-    //calculate total fitness
+    //calculate total fitness for every constraint and the must constraints of all lessons to be
+    //taught the needed hours + all teachers taught hours that they could
     private void calculateFitness() {
 
         //#1
@@ -156,8 +158,10 @@ public class Chromosome implements Comparable<Chromosome> {
 
     /**
      * Constraint #1 Να μην υπάρχουν κενά στο πρόγραμμα κανενός τμήματος.
+     * Για κάθε μέρα ψάχνουμε την τελευταία ώαρα διδασκαλίας και αφού την βρούμε
+     * πηγαίνοντας προς την πρώτη ώρα της ημέρας ψάχνουμε για κενά μαθήματα (id<0)
+     * Υπολογίζουμε το συνολικό score με τον τύπο (συνολικές ώρες διδασκαλίας - κενά) / Σ.Ω.Δ.
      */
-    // TODO sxolia mesa sth sunartisi
     private int calculateGapsScore() {
         int gapsCounter = 0;
         float gapsScore; //total gap hours
@@ -192,7 +196,6 @@ public class Chromosome implements Comparable<Chromosome> {
      * (π.χ. αν κάποιος καθηγητής έχει μάθημα τρεις ώρες κάποια μέρα, να έχει τουλάχιστον
      * μία κενή ώρα μεταξύ των πρώτων δύο ή μεταξύ των δύο τελευταίων ωρών).
      */
-    // TODO sxolia mesa sth sunartisi
     public int calculateConsecutiveTeachersScore() {
         int consecutiveHours = 0;
         int consecutiveScore = 100;
@@ -202,6 +205,8 @@ public class Chromosome implements Comparable<Chromosome> {
             for (int s = 0; s < maxSubClasses; s++) {
                 for (int d = 0; d < maxDay; d++) {
                     for (int h = 2; h < maxHour ; h++) { //starts from the 3rd hour on
+
+                        //we take teachers in triplets and check if they are the same
                         lastTeacher = chromosome[c][s][d][h].getTeacher().getId();
                         middleTeacher = chromosome[c][s][d][h - 1].getTeacher().getId();
                         firstTeacher = chromosome[c][s][d][h - 2].getTeacher().getId();
@@ -221,9 +226,8 @@ public class Chromosome implements Comparable<Chromosome> {
     }
 
     /**
-     * Secondary method for Constraint #2
+     * Secondary method for Constraint #2 to compare triplets of teachers
      */
-    // TODO sxolia mesa sth sunartisi
     private int compareTeachersId (int teacher_A, int teacher_B, int teacher_C) {
         if (teacher_A == teacher_B && teacher_B == teacher_C && teacher_C != -1)  {
             return 1;
@@ -236,12 +240,12 @@ public class Chromosome implements Comparable<Chromosome> {
      * ομοιόμορφος όλες τις ημέρες (π.χ. όχι 4ωρο τη Δευτέρα, 7ωρο την Τρίτη, 3ωρο την Τετάρτη,
      * 7ωρο Πέμπτη, 4ωρο Παρασκευή).
      */
-    // TODO sxolia mesa sth sunartisi
     private int calculateUnevenHoursScore() {
         //total teaching hours
         int teachingHoursPerDay;
 
-        //Worst case scenario
+        //Worst case scenario (where teaching hours in the 5 days is something like
+        // 7 - 0 - 7 - 0 - 7
         int maxEvenHoursScore = 42 * 9;
         int evenHoursScore;
         int [][][] subClassesHours = new int [maxClasses][maxSubClasses][maxDay];
@@ -254,6 +258,8 @@ public class Chromosome implements Comparable<Chromosome> {
                             teachingHoursPerDay++;
                         }
                     }
+                    //we keep a matrix of the teaching hours for each day for each subClass and
+                    // class
                     subClassesHours[c][s][d] = teachingHoursPerDay;
                 }
             }
@@ -265,8 +271,9 @@ public class Chromosome implements Comparable<Chromosome> {
 
     /**
      * Secondary method for Constraint #3
+     * It compares alla days with the rest and calculates the absolute difference.
+     * If this difference for all the days is 0 then the program returns 100 score.
      */
-    // TODO sxolia mesa sth sunartisi
     private int calcSubClassesEvenHours (int[][][] subClassesHours, int maxScore) {
         float temp;
         int evenHoursScore = 0;
@@ -292,7 +299,6 @@ public class Chromosome implements Comparable<Chromosome> {
      *  κατά το δυνατόν ομοιόμορφα κατανεμημένες σε όλες τις ημέρες της εβδομάδας
      *  (π.χ. να μη διδάσκονται όλες οι ώρες του μαθήματος την ίδια ημέρα).
      */
-    // TODO sxolia mesa sth sunartisi
     private int calcUnevenDistributedHoursPerLesson() {
 
         //kathe fora pou vriskw to mathima mesa sth mera, auksanw kata 1 to sumPerLess
@@ -330,7 +336,6 @@ public class Chromosome implements Comparable<Chromosome> {
      * Constraint #5 Ο αριθμός ωρών διδασκαλίας ανά εβδομάδα να είναι κατά το δυνατόν ομοιόμορφος
      * για όλους τους καθηγητές (π.χ. να μη διδάσκει ένας 25 ώρες την εβδομάδα και άλλος μόνο 5).
      */
-    // TODO sxolia mesa sth sunartisi
     private int calculateTeachersEvenHours () {
         Teacher teacherA;
         Teacher teacherB;
@@ -345,6 +350,10 @@ public class Chromosome implements Comparable<Chromosome> {
                     teacherA = allTeachers.get(teacherIdA);
                     teacherB = allTeachers.get(teacherIdB);
                     totalComparisons++;
+                    //We calculate the difference between the hours gof the teachers and if it is
+                    //Greater than a prefix value we count that as a problematic case.
+                    //Score is given by the formula (total comparisons made - probComparisons)/
+                    // total comparisons made
                     if (Math.abs(assignedTeachers.getOrDefault(teacherA,0)
                             - assignedTeachers.getOrDefault(teacherB,0)) > 10) {
                         problematicComparisons++;
@@ -358,15 +367,15 @@ public class Chromosome implements Comparable<Chromosome> {
     }
 
     /**
-     * Must Constraint of teachers.txt file
+     * Must Constraint of teachers.txt file. It calculates whether all teachers are teaching to
+     * as many hours as the can per week and day.  We keep their hours in a matrix as for the day
+     * and as for the week and in the end we compare it with the hours given by the txt file.
      */
-    // TODO sxolia mesa sth sunartisi
     private int calculateAcceptableTeachersHours () {
 
         //A list that will hold, each teacher's week hours of teaching
         HashMap<Teacher, Integer> teachersMaxWeekHours = new HashMap<>();
 
-        //A list that will hold 5 hashmaps, each for the hours of all teachers in a day
         HashMap<Teacher, Integer> teachersMaxDayHours = new HashMap<>();
         HashMap<Teacher, Integer> teachersDayHours;
         int previousWeekHours;
@@ -435,8 +444,9 @@ public class Chromosome implements Comparable<Chromosome> {
 
     /**
      * Must Constraint of lessons.txt file
+     * Same logic as above. We keep track of all the lessons that were taught in the schedule as
+     * well as how many hours they were taught and we compare it with the hours in the txt file
      */
-    // TODO sxolia mesa sth sunartisi
     private int calculateAcceptableLessonsHours () {
 
         /**
