@@ -126,18 +126,18 @@ public class Chromosome implements Comparable<Chromosome> {
         acceptableLessonsHours = calculateAcceptableLessonsHours();
         //acceptableLessonsTaught = calculateAllLessonsTaught(allLessons);
 
-//        fitness = subClassesGapsScore
-//                + consecutiveTeachersScore
-//                + unevenHoursScore
-//
-//                + teachersEvenHours
-//
-//                + acceptableTeachersHours
-//                + acceptableLessonsClass
-//                + acceptableLessonsHours;
-//
-//        fitness = fitness / 7;
-        fitness = teachersEvenHours;
+        fitness = subClassesGapsScore
+                + consecutiveTeachersScore
+                + unevenHoursScore
+
+                + teachersEvenHours
+
+                + acceptableTeachersHours
+                + acceptableLessonsClass
+                + acceptableLessonsHours;
+
+        fitness = fitness / 7;
+        //fitness = teachersEvenHours;
     }
 
     //Constraint #1 - works!!!
@@ -378,7 +378,7 @@ public class Chromosome implements Comparable<Chromosome> {
                     teacherB = allTeachers.get(teacherIdB);
                     totalComparisons++;
                     if (Math.abs(assignedTeachers.getOrDefault(teacherA,0)
-                            - assignedTeachers.getOrDefault(teacherB,0)) > 6) {
+                            - assignedTeachers.getOrDefault(teacherB,0)) > 5) {
                         problematicComparisons++;
                     }
                 }
@@ -553,7 +553,8 @@ public class Chromosome implements Comparable<Chromosome> {
                         (float) (totalLessons - notProperlyTaughtLessons) / totalLessons;
             }
         }
-        overallScore = Math.abs(overallScore/9 *100);
+        //Division with 9 subClasses
+        overallScore = Math.round(overallScore/9 *100);
         return (int) overallScore;
     }
 

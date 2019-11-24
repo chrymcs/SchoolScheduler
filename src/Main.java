@@ -34,8 +34,8 @@ public class Main {
 
 
         Genetic genetic = new Genetic(lessons, teachers, genes);
-        Chromosome solution = genetic.start(100, 0.1,
-                                    99, 100000);
+        Chromosome solution = genetic.start(10000, 0.1,
+                                    99, 1000);
         Exporter.createExcelOutput(solution.toString());
 
     }
