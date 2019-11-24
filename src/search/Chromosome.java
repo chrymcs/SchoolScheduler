@@ -19,7 +19,6 @@ public class Chromosome implements Comparable<Chromosome> {
                 acceptableLessonsHours, uneven;
 
 
-    private LinkedList<Gene> allGenes;
     private HashMap<Integer,Teacher> allTeachers;
     private HashMap<Integer,Lesson> allLessons;
     private HashMap<Teacher,Integer> assignedTeachers = new HashMap<>();
@@ -28,10 +27,8 @@ public class Chromosome implements Comparable<Chromosome> {
 
     /** CONSTRUCTORS */
     public Chromosome (Gene[][][][] childChromosome,
-                       LinkedList<Gene> genesList,
                        HashMap<Integer,Teacher> teacherHashMap,
                        HashMap<Integer,Lesson> lessonHashMap) {
-        allGenes = genesList;
         allTeachers = teacherHashMap;
         allLessons = lessonHashMap;
         Gene gene;
@@ -54,24 +51,38 @@ public class Chromosome implements Comparable<Chromosome> {
     }
 
     //Constructs a randomly created chromosome
-    public Chromosome(LinkedList<Gene> genesList,
-                      HashMap<Integer,Teacher> teacherHashMap,
-                      HashMap<Integer,Lesson> lessonHashMap) {
-        allGenes = genesList;
+    public Chromosome(HashMap<Integer,Teacher> teacherHashMap,
+                      HashMap<Integer,Lesson> lessonHashMap,
+                      ArrayList<Lesson> lA,
+                      ArrayList<Lesson> lB,
+                      ArrayList<Lesson> lC) {
+
         allTeachers = teacherHashMap;
         allLessons = lessonHashMap;
         //this.totalLessonHoursNeeded = totalLessonHoursNeeded;
         //this.hoursNeededPerClass = hoursNeededPerClass;
         Gene gene;
+        Lesson lesson;
+        Teacher teacher;
         this.chromosome = new Gene[3][3][5][7];
         Random r = new Random();
-        int upperRandomLimit = genesList.size();
+        //int upperRandomLimit = genesList.size();
 
         for (int c = 0; c < maxClasses; c++) {
             for (int s = 0; s < maxSubClasses; s++) { //foreach subClass
                 for (int d = 0; d < maxDay; d++) { //foreach day
                     for (int h = 0; h < maxHour  ; h++) { //foreach hour
-                        gene = genesList.get(r.nextInt(upperRandomLimit));
+                        //gene = genesList.get(r.nextInt(upperRandomLimit));
+
+                        if (c == 0)
+                            lesson = lA.get(r.nextInt(lA.size()));
+                        else if (c == 1)
+                            lesson = lB.get(r.nextInt(lB.size()));
+                        else
+                            lesson = lC.get(r.nextInt(lC.size()));
+
+                        teacher = lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
+                        gene = new Gene(lesson, teacher);
                         this.chromosome[c][s][d][h] = gene;
 
                         //In each assignment og lesson-teacher combination the program keeps a
@@ -121,7 +132,7 @@ public class Chromosome implements Comparable<Chromosome> {
 
         //Must
         acceptableTeachersHours = calculateAcceptableTeachersHours();
-        acceptableLessonsClass = calculateAcceptableLessonsClass();
+        //acceptableLessonsClass = calculateAcceptableLessonsClass();
         acceptableLessonsHours = calculateAcceptableLessonsHours();
 
         fitness = subClassesGapsScore
@@ -130,10 +141,10 @@ public class Chromosome implements Comparable<Chromosome> {
                 + uneven
                 + teachersEvenHours
                 + acceptableTeachersHours
-                + acceptableLessonsClass
+                //+ acceptableLessonsClass
                 + acceptableLessonsHours;
 
-        fitness = fitness / 8;
+        fitness = fitness / 7;
     }
 
     //Constraint #1 - works!!!
@@ -509,7 +520,10 @@ public class Chromosome implements Comparable<Chromosome> {
         return assignedTeachers;
     }
 
-    public void mutate() {
+    public void mutate( ArrayList<Lesson> lA,
+                        ArrayList<Lesson> lB,
+                        ArrayList<Lesson> lC) {
+
         Random r = new Random();
         int c = r.nextInt(3); //0 - 1 - 2
         int s = r.nextInt(3);
@@ -517,8 +531,20 @@ public class Chromosome implements Comparable<Chromosome> {
         int h = r.nextInt(7);
 
         //change a random gene in the chromosome
-        int upperRandomLimit = allGenes.size();
-        Gene gene = allGenes.get(r.nextInt(upperRandomLimit));
+        //int upperRandomLimit = allGenes.size();
+        //Gene gene = allGenes.get(r.nextInt(upperRandomLimit));
+
+        Lesson lesson;
+        if (c == 0)
+            lesson = lA.get(r.nextInt(lA.size()));
+        else if (c == 1)
+            lesson = lB.get(r.nextInt(lB.size()));
+        else
+            lesson = lC.get(r.nextInt(lC.size()));
+
+        Teacher teacher = lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
+        Gene gene = new Gene(lesson, teacher);
+
         chromosome[c][s][d][h] = gene;
 
         this.calculateFitness();
@@ -532,7 +558,6 @@ public class Chromosome implements Comparable<Chromosome> {
         System.out.println("#5: " + teachersEvenHours);
         System.out.println();
         System.out.println("Teachers' hours: " + acceptableTeachersHours);
-        System.out.println("Lessons to proper classes: " + acceptableLessonsClass);
         System.out.println("Lessons' hours: " + acceptableLessonsHours);
     }
 

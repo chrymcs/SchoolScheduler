@@ -28,12 +28,19 @@ public class Genetic {
     private HashMap<Integer,Teacher> allTeachers;
     private LinkedList<Gene> genes;
 
-    public Genetic (HashMap<Integer,Lesson> allLessons, HashMap<Integer,Teacher> allTeachers, LinkedList<Gene> genesList) {
+    private ArrayList<Lesson> lA;
+    private ArrayList<Lesson> lB;
+    private ArrayList<Lesson> lC;
+
+    public Genetic (HashMap<Integer,Lesson> allLessons, HashMap<Integer,Teacher> allTeachers,
+                    ArrayList<Lesson> lessonsA, ArrayList<Lesson> lessonsB, ArrayList<Lesson> lessonsC) {
         this.population = new ArrayList<>();
         this.fitnessBounds = null;
         this.allLessons = allLessons;
         this.allTeachers = allTeachers;
-        this.genes = genesList;
+        this.lA = lessonsA;
+        this.lB = lessonsB;
+        this.lC = lessonsC;
     }
 
     /**
@@ -82,11 +89,11 @@ public class Genetic {
 
                 //We might then mutate one of the children or both of them (or none).
                 if(r.nextDouble() < mutationProbability) {
-                    child1.mutate();
+                    child1.mutate(lA, lB, lC);
                 }
 
                 if(r.nextDouble() < mutationProbability) {
-                    child2.mutate();
+                    child2.mutate(lA, lB, lC);
                 }
                 //...and finally add it to the new population
                 newPopulation.add(child1);
@@ -127,7 +134,7 @@ public class Genetic {
     //initialization for the population
     private void initializePopulation(int populationSize) {
         for (int i=0 ; i < populationSize ; i++) {
-            this.population.add(new Chromosome(genes, this.allTeachers, this.allLessons));
+            this.population.add(new Chromosome(this.allTeachers, this.allLessons, this.lA, this.lB, this.lC));
         }
         this.updateFitnessBounds();
         this.population.sort(Collections.reverseOrder());
@@ -286,10 +293,8 @@ public class Genetic {
         }
 
         return new Offspring(
-                new Chromosome(childChromosomeA, genes,
-                                allTeachers, allLessons),
-                new Chromosome(childChromosomeB, genes,
-                                allTeachers, allLessons));
+                new Chromosome(childChromosomeA, allTeachers, allLessons),
+                new Chromosome(childChromosomeB, allTeachers, allLessons));
     }
 
     class Offspring { //inner class to help return 2 objects in reproduce() method
