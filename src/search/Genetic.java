@@ -4,7 +4,6 @@ import myObjects.Lesson;
 import myObjects.Teacher;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Random;
 import java.util.Collections;
 
@@ -15,13 +14,10 @@ public class Genetic {
     private ArrayList<Chromosome> population;
 
     /*
-     * ArrayList that contains indexes of the chromosomes in the population ArrayList
-     * Each chromosome index exists in the ArrayList as many times as its fitness score
-     * By creating this ArrayList so, and choosing a random index from it,
-     * the greater the fitness score of a chromosome the greater chance it will be chosen.
+     * Contains integers - indexes. For example, index 0 is for chromosome 0. If this chromosome has totalfitness = 60,
+     * it will appear in fitnessBounds ArrayList 60 times. This way, chromosomes with great(good) fitnesses, is more likely
+     * to be chosen for reproduction.
      */
-    //periexei akeraious. px to 0 antistoixei sto chromosome 0. an auto to chromosome exei px totalfitness = 10, tha emfanistei ston pinaka fitnessbounds 10 fores. ara einai pio
-    //pithano na epilegei apo ena xrwmoswma pou exei totalfitness = 4
     private ArrayList<Integer> fitnessBounds;
 
     private HashMap<Integer,Lesson> allLessons;
@@ -44,11 +40,10 @@ public class Genetic {
 
     /**
      * @param populationSize: The size of the population in every step
-     * @param mutationProbability: The propability a mutation might occur in a chromosome
+     * @param mutationProbability: The probability a mutation might occur in a chromosome
      * @param minimumAllowedFitness: The minimum fitness value of the solution we wish to find
      * @param maximumSteps: The maximum number of steps we will search for a solution
      */
-
     public Chromosome start (int populationSize, double mutationProbability, int minimumAllowedFitness,
                        int maximumSteps) {
 
@@ -66,22 +61,21 @@ public class Genetic {
 
             for(int i=0; i < populationSize / 2; i++) {
 
-
                 //System.out.println("Step: " + step + " " + i);
 
                 //We choose two chromosomes from the population
-                //Due to how fitnessBounds ArrayList is generated, the propability of
+                //Due to how fitnessBounds ArrayList is generated, the probability of
                 //selecting a specific chromosome depends on its fitness score
                 int xIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
                 Chromosome x = this.population.get(xIndex);
                 int yIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
-                while(yIndex == xIndex) //we don't want reproduction with the same parent. We need different
+                while(yIndex == xIndex) //we don't want reproduction with the same parent. We need a different one.
                 {
                     yIndex = this.fitnessBounds.get(r.nextInt(this.fitnessBounds.size()));
                 }
                 Chromosome y = this.population.get(yIndex);
 
-                //We generate the children of the two chromosomes.
+                //We generate the children of the 2 chromosomes.
                 Offspring children = this.reproduce(x,y);
                 Chromosome child1 = children.child1;
                 Chromosome child2 = children.child2;
@@ -94,6 +88,7 @@ public class Genetic {
                 if(r.nextDouble() < mutationProbability) {
                     child2.mutate(lA, lB, lC);
                 }
+
                 //...and finally add it to the new population
                 newPopulation.add(child1);
                 newPopulation.add(child2);
@@ -102,7 +97,7 @@ public class Genetic {
             newPopulation.sort(Collections.reverseOrder());
 
             //We keep 20% of the best fathers - chromosomes
-            // and the rest 80% is replaced by the best children
+            //and the rest 80% is replaced by the best children.
             for (int i = newPopulation.size() - (2 * newPopulation.size() / 10) ;
                         i < newPopulation.size() ; i++) {
                 newPopulation.set(i, population.remove(0));
@@ -112,15 +107,18 @@ public class Genetic {
 
             //We sort the population so the one with the greatest fitness is first
             this.population.sort(Collections.reverseOrder());
+
             System.out.println("Step: " + step + " Fitness: " + this.population.get(0).getFitness());
-            //If the chromosome with the best fitness is acceptable we return it
+
+            //If the chromosome with the best fitness is acceptable, we return it
             if(this.population.get(0).getFitness() >= minimumAllowedFitness)
             {
                 System.out.println("Total calculated fitness of final state: " + this.population.get(0).getFitness());
                 System.out.println("Finished after " + step + " steps...");
                 this.population.get(0).printDetailedFitness();
-                return this.population.get(0);
+                return this.population.get(0); //first is the best, because we sorted the population list above.
             }
+
             //We update the fitnessBounds arrayList
             this.updateFitnessBounds();
         }
@@ -151,7 +149,17 @@ public class Genetic {
                 //the maximum the fitness score of a chromosome the greater chance it will be chosen.
                 fitnessBounds.add(i);
             }
+
+            //the 2 constraints of txt files are more important than the others, so we add more of their chromosomes in fitnessBounds arraylist.
+            for (int j = 0; j < this.population.get(i).getAcceptableLessonsHours(); j++) {
+                fitnessBounds.add(i);
+                fitnessBounds.add(i);
+            }
+            for (int j = 0; j < this.population.get(i).getAcceptableTeachersHours(); j++) {
+                fitnessBounds.add(i);
+            }
         }
+
     }
 
 
@@ -166,7 +174,9 @@ public class Genetic {
         Gene [][][][] childChromosomeA = new Gene [3][3][5][7];
         Gene [][][][] childChromosomeB = new Gene [3][3][5][7];
 
-        //split on class
+        /**
+         * split on class
+         */
         if (dimension == 1) {
             int splitPoint = r.nextInt(3);
 
@@ -198,7 +208,9 @@ public class Genetic {
 
         }
 
-        //split on subclass
+        /**
+         * split on subClass
+         */
         else if (dimension == 2) {
             int splitPoint = r.nextInt(3);
 
@@ -229,7 +241,9 @@ public class Genetic {
             }
         }
 
-        //split on day
+        /**
+         * split on day
+         */
         else if (dimension == 3) {
             int splitPoint = r.nextInt(5);
 
@@ -260,7 +274,9 @@ public class Genetic {
             }
         }
 
-        //split on hour
+        /**
+         * split on hour
+         */
         else {
             int splitPoint = r.nextInt(7);
 
@@ -305,7 +321,6 @@ public class Genetic {
             this.child2 = chromosomeB;
         }
     }
-
 
     public ArrayList<Chromosome> getPopulation() {
         return population;
