@@ -498,14 +498,20 @@ public class Chromosome implements Comparable<Chromosome> {
         //Gene gene = allGenes.get(r.nextInt(upperRandomLimit));
 
         Lesson lesson;
+        Teacher nullTeacher = new Teacher(-1, "NULL", null, 0, 0);
         if (c == 0)
             lesson = lA.get(r.nextInt(lA.size()));
         else if (c == 1)
             lesson = lB.get(r.nextInt(lB.size()));
         else
             lesson = lC.get(r.nextInt(lC.size()));
-
-        Teacher teacher = lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
+        Teacher teacher;
+        if (lesson.getId() <0) {
+            teacher = nullTeacher;
+        } else {
+            teacher =
+                lesson.getAvailableTeachers().get(r.nextInt(lesson.getAvailableTeachers().size()));
+        }
         Gene gene = new Gene(lesson, teacher);
 
         chromosome[c][s][d][h] = gene;

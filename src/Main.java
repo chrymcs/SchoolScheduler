@@ -70,7 +70,7 @@ public class Main {
 
 
         Genetic genetic = new Genetic(lessons, teachers, lA, lB, lC);
-        Chromosome solution = genetic.start(1000, 0.5, 99, 1000);
+        Chromosome solution = genetic.start(1000, 0.5, 999, 10000);
         Exporter.createExcelOutput(solution.toString());
 
     }

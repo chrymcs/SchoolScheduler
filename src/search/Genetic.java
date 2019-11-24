@@ -112,7 +112,7 @@ public class Genetic {
 
             //We sort the population so the one with the greatest fitness is first
             this.population.sort(Collections.reverseOrder());
-            System.out.println("Fitness: " + this.population.get(0).getFitness());
+            System.out.println("Step: " + step + " Fitness: " + this.population.get(0).getFitness());
             //If the chromosome with the best fitness is acceptable we return it
             if(this.population.get(0).getFitness() >= minimumAllowedFitness)
             {
